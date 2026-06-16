@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dqtnpgsu840po"]
 
-[ext_resource type="Script" uid="uid://vqxtkwglnumq" path="res://character_body_2d.gd" id="1_4flbx"]
+[ext_resource type="Script" uid="uid://vqxtkwglnumq" path="res://player.gd" id="1_4flbx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4flbx"]
 size = Vector2(40, 40)
@@ -8,7 +8,10 @@ size = Vector2(40, 40)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_onrkg"]
 size = Vector2(50, 5)
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1755139071]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i3pqv"]
+size = Vector2(42, 42)
+
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1755139071 groups=["player"]]
 script = ExtResource("1_4flbx")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=763273463]
@@ -37,3 +40,8 @@ color = Color(0.95761544, 0.98020726, 0.7926806, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackPivot/AttackArea" unique_id=2049674577]
 position = Vector2(55, 0)
 shape = SubResource("RectangleShape2D_onrkg")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=680209074]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1417809282]
+shape = SubResource("RectangleShape2D_i3pqv")
