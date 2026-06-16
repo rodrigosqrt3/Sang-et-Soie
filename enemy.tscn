@@ -11,7 +11,7 @@ size = Vector2(44, 44)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4gyqm"]
 size = Vector2(42, 42)
 
-[node name="enemy" type="CharacterBody2D" unique_id=1642175314]
+[node name="Enemy" type="CharacterBody2D" unique_id=1642175314]
 script = ExtResource("1_7k104")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1987456172]
@@ -33,3 +33,11 @@ shape = SubResource("RectangleShape2D_7k104")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1678979965]
 shape = SubResource("RectangleShape2D_4gyqm")
+
+[node name="BarkLabel" type="Label" parent="." unique_id=1808355397]
+offset_left = -100.0
+offset_top = -40.0
+offset_right = 100.0
+offset_bottom = -17.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1

@@ -22,6 +22,7 @@ var is_attacking: bool = false
 @onready var attack_area: Area2D = $AttackPivot/AttackArea
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var color_rect: ColorRect = $ColorRect
+@onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
 	# Hide and disable the attack hitbox at start
@@ -80,6 +81,7 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 func take_damage(amount: int) -> void:
 	current_health -= amount
 	print("Player hit! Remaining HP: ", current_health)
+	camera.apply_shake(18.0, 4.0)
 	
 	# Visual feedback: Flash Red when taking damage
 	color_rect.color = DAMAGE_COLOR
@@ -94,3 +96,28 @@ func die() -> void:
 	print("Player died! Returning to the start of the loop...")
 	# Reloads the current scene to simulate the "death loop" resetting
 	get_tree().reload_current_scene()
+
+# Public function for other nodes (like enemies) to trigger camera shake
+func shake_camera(strength: float, decay: float = 5.0) -> void:
+	camera.apply_shake(strength, decay)
+
+# Public function to freeze the frame momentarily (Hit-Stop)
+func freeze_frame(duration: float, time_scale: float = 0.0) -> void:
+	Engine.time_scale = time_scale
+	
+	# Create a timer that ignores the time_scale so it can finish in real-world time
+	await get_tree().create_timer(duration, true, false, true).timeout
+	
+	Engine.time_scale = 1.0
+
+# Public function to heal the player (Anesthesia)
+func heal(amount: int) -> void:
+	# Only heal if the player is currently injured
+	if current_health < MAX_HEALTH:
+		current_health = clamp(current_health + amount, 0, MAX_HEALTH)
+		print("Étienne drank champagne. Decadence restored. Remaining HP: ", current_health)
+		
+		# Visual feedback: Flash Gold when healing
+		color_rect.color = Color(0.8, 0.6, 0.0) # Gold flash
+		await get_tree().create_timer(0.1).timeout
+		color_rect.color = EMERALD_GREEN

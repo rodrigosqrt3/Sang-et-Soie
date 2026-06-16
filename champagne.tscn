@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://bqjxe7dgda7og"]
+
+[ext_resource type="Script" uid="uid://dvgfrcovrvdy1" path="res://champagne.gd" id="1_3sveg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8i3r6"]
+size = Vector2(10, 24)
+
+[node name="Champagne" type="Area2D" unique_id=1794336123]
+script = ExtResource("1_3sveg")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1163562749]
+offset_left = -5.0
+offset_top = -12.0
+offset_right = 5.0
+offset_bottom = 12.0
+color = Color(0.00919828, 0.32603407, 0.23130283, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=649208442]
+shape = SubResource("RectangleShape2D_8i3r6")

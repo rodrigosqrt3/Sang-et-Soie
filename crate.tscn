@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://dsov6aqnmdwn7"]
+
+[ext_resource type="Script" uid="uid://d3awoocpe66fe" path="res://crate.gd" id="1_uep05"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4417n"]
+size = Vector2(34, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uep05"]
+size = Vector2(32, 32)
+
+[node name="Crate" type="StaticBody2D" unique_id=2128326567]
+script = ExtResource("1_uep05")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=355123228]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.36078432, 0.22745098, 0.12941177, 1)
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=420815987]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1876664337]
+shape = SubResource("RectangleShape2D_4417n")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=820880108]
+shape = SubResource("RectangleShape2D_uep05")

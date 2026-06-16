@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dqtnpgsu840po"]
 
 [ext_resource type="Script" uid="uid://vqxtkwglnumq" path="res://player.gd" id="1_4flbx"]
+[ext_resource type="Script" uid="uid://bf38tmljbu0rj" path="res://player_camera.gd" id="2_onrkg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4flbx"]
 size = Vector2(40, 40)
@@ -25,6 +26,7 @@ shape = SubResource("RectangleShape2D_4flbx")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1694301574]
 position_smoothing_enabled = true
+script = ExtResource("2_onrkg")
 
 [node name="AttackPivot" type="Node2D" parent="." unique_id=1860649509]
 
