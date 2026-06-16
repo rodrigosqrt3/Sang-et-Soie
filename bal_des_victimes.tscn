@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://cynrh77vf24da"]
+
+[ext_resource type="PackedScene" uid="uid://dqtnpgsu840po" path="res://player.tscn" id="1_nkxaq"]
+[ext_resource type="Script" uid="uid://c6jloate64bjd" path="res://marguerite.gd" id="2_522iv"]
+[ext_resource type="Script" uid="uid://bautmu3s1ovtc" path="res://exit_door.gd" id="3_8w7dv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8w7dv"]
+size = Vector2(30, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cpa4n"]
+size = Vector2(80, 20)
+
+[node name="BalDesVictimes" type="Node2D" unique_id=787788114]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1341833096]
+offset_right = 800.0
+offset_bottom = 600.0
+color = Color(0.101960786, 0.05882353, 0.05882353, 1)
+
+[node name="CharacterBody2D" parent="ColorRect" unique_id=1755139071 instance=ExtResource("1_nkxaq")]
+position = Vector2(400, 350)
+is_safe_mode = true
+
+[node name="Marguerite" type="Area2D" parent="." unique_id=412663169]
+script = ExtResource("2_522iv")
+
+[node name="ColorRect" type="ColorRect" parent="Marguerite" unique_id=1390265490]
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+color = Color(0.6566243, 0.92955774, 0.99141675, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Marguerite" unique_id=1093910598]
+shape = SubResource("RectangleShape2D_8w7dv")
+
+[node name="SpeechBubble" type="Label" parent="Marguerite" unique_id=791778816]
+offset_left = -100.0
+offset_top = -35.0
+offset_right = 100.0
+offset_bottom = -12.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="ExitDoor" type="Area2D" parent="." unique_id=1375450896]
+position = Vector2(400, 60)
+script = ExtResource("3_8w7dv")
+
+[node name="ColorRect" type="ColorRect" parent="ExitDoor" unique_id=1219730902]
+offset_left = -40.0
+offset_top = -10.0
+offset_right = 40.0
+offset_bottom = 10.0
+color = Color(0.31771168, 0.27390113, 0.11984671, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitDoor" unique_id=1825145619]
+shape = SubResource("RectangleShape2D_cpa4n")

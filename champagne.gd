@@ -5,7 +5,6 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 func _on_body_entered(body: Node2D) -> void:
-	# DIAGNÓSTICO 1: Para sabermos se a garrafa detectou que ALGO encostou nela
 	print("DEBUG: Champagne bottle touched by: ", body.name)
 	
 	if body.is_in_group("player"):
@@ -16,5 +15,4 @@ func _on_body_entered(body: Node2D) -> void:
 			body.heal(1)
 			queue_free()
 		else:
-			# DIAGNÓSTICO 2: Se encostou no jogador, mas ele não tem a função de cura
 			print("DEBUG ERROR: Player touched the bottle, but player.gd is missing the 'heal' function!")

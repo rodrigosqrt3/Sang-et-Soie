@@ -1,48 +1,37 @@
 extends CharacterBody2D
 
-# Exported variables to customize enemy types easily in the Inspector
-@export var max_health: int = 3
-@export var speed: float = 120.0
-@export var default_color: Color = Color(0.6, 0.0, 0.0) # Default dark red
+# Stats
+const MAX_HEALTH: int = 3
+var current_health: int = MAX_HEALTH
 
-var current_health: int
+const SPEED: float = 80.0          # Slower than normal melee enemy
+const STOP_DISTANCE: float = 280.0  # Distance where the enemy stops and shoots
+
+# Preload the projectile scene so we can spawn it
+const PROJECTILE_SCENE = preload("res://projectile.tscn")
 
 # Knockback stats
 var knockback_velocity: Vector2 = Vector2.ZERO
 const KNOCKBACK_DECAY: float = 15.0
 
-# Historical French Revolutionary insults (barks)
-const BARKS: Array[String] = [
-	"Aristocrate!",
-	"À la lanterne!",      
-	"À bas les dandys!",   
-	"Pour la République!", 
-	"Muscadin!",           
-	"Traître!"             
-]
-
-# Dialogue timer variables
-var bark_timer: float = 0.0
-const BARK_COOLDOWN: float = 4.0
-
-# Color variables for the hit flash effect
+# Colors for hit flash (using navy blue as default)
+const NAVY_BLUE = Color(0.16, 0.50, 0.72)
 const FLASH_COLOR = Color.WHITE
 
 # References to nodes
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var color_rect: ColorRect = $ColorRect
-@onready var bark_label: Label = $BarkLabel
+@onready var shoot_timer: Timer = $ShootTimer
 
 func _ready() -> void:
 	add_to_group("enemies")
-	# Initialize stats dynamically from exported variables
-	current_health = max_health
-	color_rect.color = default_color
-	
-	# Ensure the speech bubble is empty and hidden at start
-	bark_label.text = ""
-	bark_label.visible = false
+	current_health = MAX_HEALTH
+	color_rect.color = NAVY_BLUE
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
+	
+	# Connect the shoot timer signal
+	shoot_timer.timeout.connect(_on_shoot_timer_timeout)
+	shoot_timer.start(2.0) # Shoot every 2.0 seconds
 
 func _physics_process(delta: float) -> void:
 	# 1. If we have active knockback, apply it and decay it
@@ -52,31 +41,44 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 		
-	# Handle random dialogue barks while chasing
-	bark_timer += delta
-	if bark_timer >= BARK_COOLDOWN:
-		bark_timer = 0.0
-		if randf() < 0.25:
-			shout_dialogue(BARKS[randi() % BARKS.size()])
-			
-	# Find the player using the global "player" group
+	# 2. Find the player using the global "player" group
 	var players = get_tree().get_nodes_in_group("player")
 	
 	if players.size() > 0:
 		var player = players[0] as CharacterBody2D
+		var distance = global_position.distance_to(player.global_position)
 		var direction = global_position.direction_to(player.global_position)
 		
-		# Use our exported speed variable!
-		velocity = direction * speed
+		# If too far, walk towards the player. If close enough, stop to shoot!
+		if distance > STOP_DISTANCE:
+			velocity = direction * SPEED
+		else:
+			velocity = Vector2.ZERO
+			
 		move_and_slide()
 
-# Function to show a floating speech bubble above the enemy
-func shout_dialogue(text: String) -> void:
-	bark_label.text = text
-	bark_label.visible = true
-	await get_tree().create_timer(1.5).timeout
-	bark_label.visible = false
-	bark_label.text = ""
+func _on_shoot_timer_timeout() -> void:
+	# Only shoot if the player is alive and not during knockback recovery
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() > 0 and knockback_velocity.length() <= 10.0:
+		var player = players[0] as CharacterBody2D
+		var distance = global_position.distance_to(player.global_position)
+		
+		# Only shoot if the player is within range
+		if distance <= STOP_DISTANCE + 100.0:
+			shoot_at_player(player)
+
+func shoot_at_player(player: CharacterBody2D) -> void:
+	var proj = PROJECTILE_SCENE.instantiate() as Area2D
+	
+	# Calculate direction and spawn projectile slightly in front of the enemy
+	var dir = global_position.direction_to(player.global_position)
+	proj.global_position = global_position + (dir * 25.0)
+	proj.direction = dir
+	
+	# Add the projectile to the World scene
+	get_parent().add_child(proj)
+	print("Ranged enemy shot a projectile!")
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "AttackArea":
@@ -86,41 +88,31 @@ func take_damage(amount: int) -> void:
 	current_health -= amount
 	print(name, " took damage! Remaining HP: ", current_health)
 	
-	# Shout a pain cry on hit
-	shout_dialogue("Aïe!")
-	
-	# Apply Knockback, Camera Shake, and Hit-Stop on successful impact
+	# Trigger hit freeze and camera shake
 	var players = get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
 		var player = players[0] as CharacterBody2D
-		
 		if player.has_method("freeze_frame"):
 			player.freeze_frame(0.08)
-		
 		if player.has_method("shake_camera"):
 			player.shake_camera(8.0, 6.0)
 			
 		var knockback_direction = (global_position - player.global_position).normalized()
 		knockback_velocity = knockback_direction * 1000.0
-	
+		
 	color_rect.color = FLASH_COLOR
 	await get_tree().create_timer(0.08).timeout
-	
-	# Flash back to our exported default color!
-	color_rect.color = default_color
+	color_rect.color = NAVY_BLUE
 	
 	if current_health <= 0:
 		die()
 
 func die() -> void:
 	print(name, " defeated!")
-	
 	if get_parent().has_method("add_score"):
 		get_parent().add_score(1)
-	
 	color_rect.visible = false
 	hurtbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
 	$CollisionShape2D.set_deferred("disabled", true)
-	bark_label.visible = false
 	queue_free()

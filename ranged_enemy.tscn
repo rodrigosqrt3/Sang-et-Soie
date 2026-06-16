@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://cdlpnjm4xd4sj"]
+
+[ext_resource type="Script" uid="uid://cg2s1r22djpit" path="res://ranged_enemy.gd" id="1_kexd4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7xaro"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7k104"]
+size = Vector2(44, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4gyqm"]
+size = Vector2(42, 42)
+
+[node name="RangedEnemy" type="CharacterBody2D" unique_id=1642175314]
+script = ExtResource("1_kexd4")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1987456172]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(0.16078432, 0.5019608, 0.7254902, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2035057253]
+shape = SubResource("RectangleShape2D_7xaro")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=368258637]
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hurtbox" unique_id=50202206]
+shape = SubResource("RectangleShape2D_7k104")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=600228597]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1678979965]
+shape = SubResource("RectangleShape2D_4gyqm")
+
+[node name="BarkLabel" type="Label" parent="." unique_id=1808355397]
+offset_left = -100.0
+offset_top = -40.0
+offset_right = 100.0
+offset_bottom = -17.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="ShootTimer" type="Timer" parent="." unique_id=956917447]

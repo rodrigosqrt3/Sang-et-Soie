@@ -40,7 +40,9 @@ func break_crate() -> void:
 
 func spawn_champagne() -> void:
 	var champagne_instance = CHAMPAGNE_SCENE.instantiate() as Area2D
-	# Spawn exactly where the crate was located
 	champagne_instance.global_position = global_position
-	get_parent().add_child(champagne_instance)
+	
+	# CHANGE: Safely defer adding the child node outside the physics step
+	get_parent().add_child.call_deferred(champagne_instance)
+	
 	print("Champagne bottle found inside the crate!")

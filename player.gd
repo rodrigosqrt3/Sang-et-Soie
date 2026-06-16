@@ -1,5 +1,8 @@
 extends CharacterBody2D
 
+# Exported variable to toggle peace/combat mode in the Inspector
+@export var is_safe_mode: bool = false
+
 # Movement stats
 const SPEED: float = 300.0
 const DASH_SPEED: float = 1200.0
@@ -10,8 +13,8 @@ const MAX_HEALTH: int = 3
 var current_health: int = MAX_HEALTH
 
 # Color variables for visual feedback
-const EMERALD_GREEN = Color(0.14, 0.45, 0.23) # Emerald green (approx. #24733b)
-const DAMAGE_COLOR = Color.RED                 # Red flash on hit
+const EMERALD_GREEN = Color(0.14, 0.45, 0.23)
+const DAMAGE_COLOR = Color.RED
 
 # State variables
 var is_dashing: bool = false
@@ -25,38 +28,45 @@ var is_attacking: bool = false
 @onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
-	# Hide and disable the attack hitbox at start
 	attack_area.visible = false
 	attack_area.monitorable = false
 	attack_area.monitoring = false
-	
-	# Connect the player's Hurtbox signal to detect incoming enemy attacks
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 
 func _physics_process(_delta: float) -> void:
-	# If dashing, bypass normal movement and attack inputs
 	if is_dashing:
 		move_and_slide()
 		return
 		
-	# Standard 8-way movement
+	# Standard 8-way movement (always enabled)
 	var direction := Input.get_vector("left", "right", "up", "down")
 	velocity = direction * SPEED
 	
-	# Trigger Dash (Spacebar)
-	if Input.is_action_just_pressed("dash") and direction != Vector2.ZERO:
-		start_dash(direction)
-		
-	# Trigger Attack (Left Mouse Button)
-	if Input.is_action_just_pressed("attack") and not is_attacking:
-		start_attack()
+	# ONLY allow dashing and attacking if we are NOT in Safe Mode!
+	if not is_safe_mode:
+		# Trigger Dash (Spacebar)
+		if Input.is_action_just_pressed("dash") and direction != Vector2.ZERO:
+			start_dash(direction)
+			
+		# Trigger Attack (Left Mouse Button)
+		if Input.is_action_just_pressed("attack") and not is_attacking:
+			start_attack()
 		
 	move_and_slide()
 
 func start_dash(dash_direction: Vector2) -> void:
 	is_dashing = true
 	velocity = dash_direction * DASH_SPEED
-	await get_tree().create_timer(DASH_DURATION).timeout
+	
+	# Spawn three ghosts at short intervals (0.05 seconds) during the 0.15s dash
+	spawn_ghost_effect()
+	await get_tree().create_timer(0.05).timeout
+	spawn_ghost_effect()
+	await get_tree().create_timer(0.05).timeout
+	spawn_ghost_effect()
+	
+	# Wait the final remaining 0.05s of the dash
+	await get_tree().create_timer(0.05).timeout
 	is_dashing = false
 
 func start_attack() -> void:
@@ -94,8 +104,8 @@ func take_damage(amount: int) -> void:
 
 func die() -> void:
 	print("Player died! Returning to the start of the loop...")
-	# Reloads the current scene to simulate the "death loop" resetting
-	get_tree().reload_current_scene()
+	# CHANGE: Instead of reloading the current scene, we load the safe Hub!
+	get_tree().change_scene_to_file("res://bal_des_victimes.tscn")
 
 # Public function for other nodes (like enemies) to trigger camera shake
 func shake_camera(strength: float, decay: float = 5.0) -> void:
@@ -121,3 +131,23 @@ func heal(amount: int) -> void:
 		color_rect.color = Color(0.8, 0.6, 0.0) # Gold flash
 		await get_tree().create_timer(0.1).timeout
 		color_rect.color = EMERALD_GREEN
+
+# Spawns a temporary, fading ghost effect at the player's current position
+func spawn_ghost_effect() -> void:
+	# Create a temporary ColorRect programmatically
+	var ghost = ColorRect.new()
+	ghost.size = color_rect.size
+	# Center it at the player's exact global position
+	ghost.global_position = global_position - (color_rect.size / 2.0)
+	# Give it a semi-transparent emerald green color (Alpha = 0.4)
+	ghost.color = Color(0.14, 0.45, 0.23, 0.4)
+	
+	# Add the ghost to the World scene so it stays fixed on the ground while we move
+	get_parent().add_child(ghost)
+	
+	# Create a beautiful Tween to animate the opacity fadeout
+	var tween = create_tween()
+	# Smoothly reduce the alpha channel of the color to 0.0 over 0.25 seconds
+	tween.tween_property(ghost, "color:a", 0.0, 0.25)
+	# Automatically delete the ghost node from memory when the animation finishes!
+	tween.tween_callback(ghost.queue_free)

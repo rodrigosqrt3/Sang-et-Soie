@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://cloo2sywtyhic"]
+
+[ext_resource type="Script" uid="uid://ky44nfljennu" path="res://escape_route.gd" id="1_7gbrx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a5y5n"]
+size = Vector2(40, 40)
+
+[node name="EscapeRoute" type="Area2D" unique_id=68303117]
+script = ExtResource("1_7gbrx")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=475654610]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(0.14737225, 0.06678943, 0.034807786, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2012087865]
+shape = SubResource("RectangleShape2D_a5y5n")
