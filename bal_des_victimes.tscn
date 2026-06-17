@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://cynrh77vf24da"]
 
+[ext_resource type="Script" uid="uid://bg6t6h0ees2m2" path="res://bal_des_victimes.gd" id="1_ehjcp"]
 [ext_resource type="PackedScene" uid="uid://dqtnpgsu840po" path="res://player.tscn" id="1_nkxaq"]
 [ext_resource type="Script" uid="uid://c6jloate64bjd" path="res://marguerite.gd" id="2_522iv"]
 [ext_resource type="Script" uid="uid://bautmu3s1ovtc" path="res://exit_door.gd" id="3_8w7dv"]
+[ext_resource type="Script" uid="uid://d08jju6f5sk1m" path="res://smuggler.gd" id="4_cpa4n"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8w7dv"]
 size = Vector2(30, 30)
@@ -10,7 +12,11 @@ size = Vector2(30, 30)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cpa4n"]
 size = Vector2(80, 20)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ehjcp"]
+size = Vector2(30, 30)
+
 [node name="BalDesVictimes" type="Node2D" unique_id=787788114]
+script = ExtResource("1_ehjcp")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1341833096]
 offset_right = 800.0
@@ -55,3 +61,32 @@ color = Color(0.31771168, 0.27390113, 0.11984671, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitDoor" unique_id=1825145619]
 shape = SubResource("RectangleShape2D_cpa4n")
+
+[node name="Smuggler" type="Area2D" parent="." unique_id=788074777]
+position = Vector2(650, 400)
+script = ExtResource("4_cpa4n")
+
+[node name="ColorRect" type="ColorRect" parent="Smuggler" unique_id=2089926149]
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+color = Color(0.21554184, 0.14639285, 0.57977635, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Smuggler" unique_id=63812750]
+shape = SubResource("RectangleShape2D_ehjcp")
+
+[node name="SpeechBubble" type="Label" parent="Smuggler" unique_id=779086079]
+offset_left = -150.0
+offset_top = -50.0
+offset_right = 150.0
+offset_bottom = -15.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=973936076]
+
+[node name="ObjectiveLabel" type="Label" parent="UI" unique_id=1406407787]
+offset_right = 20.0
+offset_bottom = 26.0
+theme_override_font_sizes/font_size = 18

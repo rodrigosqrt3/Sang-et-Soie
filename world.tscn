@@ -5,7 +5,6 @@
 [ext_resource type="Texture2D" uid="uid://b2xrk4awhemv4" path="res://icon.svg" id="2_fj7yv"]
 [ext_resource type="PackedScene" uid="uid://cvpnqx4lfaogd" path="res://enemy.tscn" id="3_tlwt5"]
 [ext_resource type="Script" uid="uid://b60d2yjjgmcqt" path="res://enemy_spawner.gd" id="4_aqk2v"]
-[ext_resource type="PackedScene" uid="uid://dsov6aqnmdwn7" path="res://crate.tscn" id="6_dwbse"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tlwt5"]
 texture = ExtResource("2_fj7yv")
@@ -108,14 +107,10 @@ offset_bottom = 54.0
 theme_override_font_sizes/font_size = 24
 text = "Kills: 0"
 
-[node name="Crate" parent="." unique_id=2128326567 instance=ExtResource("6_dwbse")]
-position = Vector2(-250, 10)
-
-[node name="Crate2" parent="." unique_id=461889761 instance=ExtResource("6_dwbse")]
-position = Vector2(-251, 58)
-
-[node name="Crate3" parent="." unique_id=1930465208 instance=ExtResource("6_dwbse")]
-position = Vector2(-253, 107)
-
-[node name="Crate4" parent="." unique_id=410819838 instance=ExtResource("6_dwbse")]
-position = Vector2(-253, 154)
+[node name="DashBar" type="ProgressBar" parent="UI" unique_id=1602266517]
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 140.0
+offset_bottom = 77.0
+value = 100.0
+show_percentage = false

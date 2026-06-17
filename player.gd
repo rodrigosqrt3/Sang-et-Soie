@@ -11,6 +11,8 @@ const DASH_DURATION: float = 0.15
 # Player health stats
 const MAX_HEALTH: int = 3
 var current_health: int = MAX_HEALTH
+const DASH_COOLDOWN_TIME: float = 1.0
+var dash_cooldown_timer: float = 0.0
 
 # Color variables for visual feedback
 const EMERALD_GREEN = Color(0.14, 0.45, 0.23)
@@ -26,14 +28,23 @@ var is_attacking: bool = false
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var color_rect: ColorRect = $ColorRect
 @onready var camera: Camera2D = $Camera2D
+@onready var weapon_color_rect: ColorRect = $AttackPivot/AttackArea/ColorRect
 
 func _ready() -> void:
+	# Apply persistent weapon scale upgrades from the Global state!
+	attack_pivot.scale = Global.weapon_scale
+	
+	# Disable and hide the attack hitbox at start
 	attack_area.visible = false
 	attack_area.monitorable = false
 	attack_area.monitoring = false
+	
+	# Connect the player's Hurtbox signal to detect incoming enemy attacks
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 
 func _physics_process(_delta: float) -> void:
+	if dash_cooldown_timer > 0.0:
+		dash_cooldown_timer = move_toward(dash_cooldown_timer, 0.0, _delta)
 	if is_dashing:
 		move_and_slide()
 		return
@@ -45,7 +56,7 @@ func _physics_process(_delta: float) -> void:
 	# ONLY allow dashing and attacking if we are NOT in Safe Mode!
 	if not is_safe_mode:
 		# Trigger Dash (Spacebar)
-		if Input.is_action_just_pressed("dash") and direction != Vector2.ZERO:
+		if Input.is_action_just_pressed("dash") and direction != Vector2.ZERO and dash_cooldown_timer == 0.0:
 			start_dash(direction)
 			
 		# Trigger Attack (Left Mouse Button)
@@ -56,6 +67,7 @@ func _physics_process(_delta: float) -> void:
 
 func start_dash(dash_direction: Vector2) -> void:
 	is_dashing = true
+	dash_cooldown_timer = Global.dash_cooldown	
 	velocity = dash_direction * DASH_SPEED
 	
 	# Spawn three ghosts at short intervals (0.05 seconds) during the 0.15s dash
@@ -71,12 +83,31 @@ func start_dash(dash_direction: Vector2) -> void:
 
 func start_attack() -> void:
 	is_attacking = true
+	
+	# Calculate the angle pointing to the mouse from the player position
 	var mouse_position := get_global_mouse_position()
-	attack_pivot.look_at(mouse_position)
+	var base_angle := global_position.angle_to_point(mouse_position)
+	
+	# Set the initial rotation of the pivot to start 60 degrees behind the mouse angle
+	attack_pivot.rotation = base_angle - deg_to_rad(60.0)
+	
+	# Make the weapon fully opaque (0.8 alpha) and active before starting the swing
+	weapon_color_rect.color.a = 0.8
 	attack_area.visible = true
 	attack_area.monitorable = true
 	attack_area.monitoring = true
+	
+	# Create a parallel Tween to animate both rotation and opacity at the same time
+	var tween = create_tween().set_parallel(true)
+	# Sweep the weapon in a 120-degree arc (from -60 to +60 degrees relative to base angle)
+	tween.tween_property(attack_pivot, "rotation", base_angle + deg_to_rad(60.0), 0.15)
+	# Smoothly fade out the weapon's opacity during the swing
+	tween.tween_property(weapon_color_rect, "color:a", 0.0, 0.15)
+	
+	# Wait for the 0.15-second swing animation to finish
 	await get_tree().create_timer(0.15).timeout
+	
+	# Disable the weapon hitboxes
 	attack_area.visible = false
 	attack_area.monitorable = false
 	attack_area.monitoring = false

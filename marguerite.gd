@@ -33,13 +33,12 @@ func _on_body_exited(body: Node2D) -> void:
 		speech_bubble.text = ""
 
 func talk() -> void:
-	# Marguerite's dialogue changes dynamically based on how many runs you completed!
-	if Global.runs_completed == 0:
-		speech_bubble.text = "Madame prefers the Burgundy, Étienne..."
+	# Dialogue branches depending on the current active quest
+	if Global.current_quest == "talk_to_marguerite":
+		speech_bubble.text = "Marguerite: 'Étienne! You returned... Is Paris still bleeding?\nThe sewer key... I hid it under the floorboards.'"
 	else:
-		speech_bubble.text = "Étienne! You returned... Is Paris still bleeding?"
+		speech_bubble.text = "Madame prefers the Burgundy, Étienne..."
 		
-	# Keep the dialogue on screen for 3.0 seconds, then return to the interact prompt
 	await get_tree().create_timer(3.0).timeout
 	
 	if is_player_nearby:
