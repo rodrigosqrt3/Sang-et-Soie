@@ -5,11 +5,10 @@ func _ready() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
-		print("Chamber cleared! Returning victorious to the Bal des Victimes.")
-		Global.runs_completed += 1
-		
-		# Advance quest state if we cleared the streets!
+		# ONLY allow the player to enter the streets if they accepted the quest!
 		if Global.current_quest == "enter_streets":
-			Global.current_quest = "report_to_smuggler"
-			
-		get_tree().change_scene_to_file.call_deferred("res://bal_des_victimes.tscn")
+			print("Leaving the Bal des Victimes... Heading to Paris streets.")
+			get_tree().change_scene_to_file.call_deferred("res://world.tscn")
+		else:
+			# The door is locked!
+			print("The door is locked. Talk to the Smuggler first.")

@@ -29,6 +29,7 @@ var is_attacking: bool = false
 @onready var color_rect: ColorRect = $ColorRect
 @onready var camera: Camera2D = $Camera2D
 @onready var weapon_color_rect: ColorRect = $AttackPivot/AttackArea/ColorRect
+@onready var dust_particles: CPUParticles2D = $DustParticles
 
 func _ready() -> void:
 	# Apply persistent weapon scale upgrades from the Global state!
@@ -62,6 +63,11 @@ func _physics_process(_delta: float) -> void:
 		# Trigger Attack (Left Mouse Button)
 		if Input.is_action_just_pressed("attack") and not is_attacking:
 			start_attack()
+		
+	if velocity.length() > 0.0 and not is_dashing and not is_safe_mode:
+		dust_particles.emitting = true
+	else:
+		dust_particles.emitting = false
 		
 	move_and_slide()
 

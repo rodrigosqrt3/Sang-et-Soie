@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://d22jcehik8mny"]
+
+[ext_resource type="Script" uid="uid://cnuonmn23hlrf" path="res://dossier.gd" id="1_2w3h4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gw086"]
+size = Vector2(16, 20)
+
+[node name="Dossier" type="Area2D" unique_id=465363781]
+script = ExtResource("1_2w3h4")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1048268248]
+offset_left = -8.0
+offset_top = -10.0
+offset_right = 8.0
+offset_bottom = 10.0
+color = Color(0.9607843, 0.9607843, 0.8627451, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1455139381]
+shape = SubResource("RectangleShape2D_gw086")
+
+[node name="PromptLabel" type="Label" parent="." unique_id=1822693952]
+offset_left = -60.0
+offset_top = -30.0
+offset_right = 60.0
+offset_bottom = -7.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1

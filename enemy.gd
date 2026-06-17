@@ -6,6 +6,11 @@ extends CharacterBody2D
 @export var default_color: Color = Color(0.6, 0.0, 0.0) # Default dark red
 
 var current_health: int
+# Attack states
+var is_attacking: bool = false
+const ATTACK_RANGE: float = 75.0    # Distance to trigger the saber swing
+const ATTACK_COOLDOWN: float = 2.0  # Cooldown between saber swings
+var attack_cooldown_timer: float = 0.0
 
 # Knockback stats
 var knockback_velocity: Vector2 = Vector2.ZERO
@@ -34,41 +39,55 @@ const FLASH_COLOR = Color.WHITE
 @onready var bark_label: Label = $BarkLabel
 
 func _ready() -> void:
-	add_to_group("enemies")
-	# Initialize stats dynamically from exported variables
 	current_health = max_health
 	color_rect.color = default_color
 	
-	# Ensure the speech bubble is empty and hidden at start
+	# Ensure the weapon hitbox starts disabled
+	$Hitbox.visible = false
+	$Hitbox.monitoring = false
+	$Hitbox.monitorable = false
+	
 	bark_label.text = ""
 	bark_label.visible = false
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 
 func _physics_process(delta: float) -> void:
-	# 1. If we have active knockback, apply it and decay it
+	# 1. Decay knockback if active
 	if knockback_velocity.length() > 10.0:
 		velocity = knockback_velocity
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_DECAY * delta * 150.0)
 		move_and_slide()
 		return
 		
-	# Handle random dialogue barks while chasing
+	# 2. Decay attack cooldown timer
+	if attack_cooldown_timer > 0.0:
+		attack_cooldown_timer = move_toward(attack_cooldown_timer, 0.0, delta)
+		
+	# If currently performing the attack swing, stay in place
+	if is_attacking:
+		return
+		
+	# Handle random barks while chasing
 	bark_timer += delta
 	if bark_timer >= BARK_COOLDOWN:
 		bark_timer = 0.0
 		if randf() < 0.25:
 			shout_dialogue(BARKS[randi() % BARKS.size()])
 			
-	# Find the player using the global "player" group
+	# 3. Find the player to chase or attack
 	var players = get_tree().get_nodes_in_group("player")
 	
 	if players.size() > 0:
 		var player = players[0] as CharacterBody2D
+		var distance = global_position.distance_to(player.global_position)
 		var direction = global_position.direction_to(player.global_position)
 		
-		# Use our exported speed variable!
-		velocity = direction * speed
-		move_and_slide()
+		# If in range and cooldown is ready, attack! Otherwise, chase.
+		if distance <= ATTACK_RANGE and attack_cooldown_timer == 0.0:
+			start_attack_routine(direction)
+		else:
+			velocity = direction * speed
+			move_and_slide()
 
 # Function to show a floating speech bubble above the enemy
 func shout_dialogue(text: String) -> void:
@@ -124,3 +143,36 @@ func die() -> void:
 	$CollisionShape2D.set_deferred("disabled", true)
 	bark_label.visible = false
 	queue_free()
+
+# Performs the Sabre-Briquet active attack swing
+func start_attack_routine(attack_direction: Vector2) -> void:
+	is_attacking = true
+	attack_cooldown_timer = ATTACK_COOLDOWN
+	
+	# 1. Shouts a battle cry!
+	shout_dialogue("À mort!")
+	
+	# 2. Telegraph (Wind-up): Flash yellow to warn the player to dodge!
+	color_rect.color = Color.YELLOW
+	await get_tree().create_timer(0.4).timeout
+	color_rect.color = default_color
+	
+	# 3. Swing Phase: Position the hitbox towards the player and enable it
+	var hitbox = $Hitbox
+	hitbox.position = attack_direction * 25.0 # Project hitbox forward
+	
+	# ADD THIS LINE: Mathematically rotates the sword to face the attack direction!
+	hitbox.rotation = attack_direction.angle()
+	
+	hitbox.visible = true
+	hitbox.monitoring = true
+	hitbox.monitorable = true
+	
+	# Keep the saber hitbox active for 0.15 seconds
+	await get_tree().create_timer(0.15).timeout
+	
+	# 4. Recovery Phase: Disable hitbox and resume chasing
+	hitbox.visible = false
+	hitbox.monitoring = false
+	hitbox.monitorable = false
+	is_attacking = false

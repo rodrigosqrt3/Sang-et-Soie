@@ -1,25 +1,25 @@
-[gd_scene format=3 uid="uid://cvpnqx4lfaogd"]
+[gd_scene format=3 uid="uid://dgqtav46oa51k"]
 
-[ext_resource type="Script" uid="uid://ck3b5b063kh4p" path="res://enemy.gd" id="1_7k104"]
+[ext_resource type="Script" uid="uid://c3d4ryo2q8pjd" path="res://boss.gd" id="1_0bnu1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7xaro"]
-size = Vector2(40, 40)
+size = Vector2(60, 60)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7k104"]
-size = Vector2(44, 44)
+size = Vector2(64, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4gyqm"]
-size = Vector2(42, 42)
+size = Vector2(64, 64)
 
-[node name="Enemy" type="CharacterBody2D" unique_id=1642175314]
-script = ExtResource("1_7k104")
+[node name="Boss" type="CharacterBody2D" unique_id=1642175314]
+script = ExtResource("1_0bnu1")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1987456172]
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-color = Color(0.6392157, 0.015686275, 0.08235294, 1)
+offset_left = -30.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+color = Color(0.5568628, 0.26666668, 0.6784314, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2035057253]
 shape = SubResource("RectangleShape2D_7xaro")
@@ -34,13 +34,6 @@ shape = SubResource("RectangleShape2D_7k104")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1678979965]
 shape = SubResource("RectangleShape2D_4gyqm")
 
-[node name="WeaponVisual" type="ColorRect" parent="Hitbox" unique_id=1175889621]
-offset_left = -20.0
-offset_top = -4.0
-offset_right = 20.0
-offset_bottom = 4.0
-color = Color(0.7411765, 0.7647059, 0.78039217, 1)
-
 [node name="BarkLabel" type="Label" parent="." unique_id=1808355397]
 offset_left = -100.0
 offset_top = -40.0
@@ -48,3 +41,5 @@ offset_right = 100.0
 offset_bottom = -17.0
 theme_override_font_sizes/font_size = 12
 horizontal_alignment = 1
+
+[node name="ShootTimer" type="Timer" parent="." unique_id=956917447]

@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://c6jloate64bjd" path="res://marguerite.gd" id="2_522iv"]
 [ext_resource type="Script" uid="uid://bautmu3s1ovtc" path="res://exit_door.gd" id="3_8w7dv"]
 [ext_resource type="Script" uid="uid://d08jju6f5sk1m" path="res://smuggler.gd" id="4_cpa4n"]
+[ext_resource type="PackedScene" uid="uid://bgpn0lrtbk4if" path="res://sewer_key.tscn" id="6_jfwaq"]
+[ext_resource type="Script" uid="uid://drocbd4vfdvtb" path="res://sewer_entrance.gd" id="7_1geid"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8w7dv"]
 size = Vector2(30, 30)
@@ -14,6 +16,9 @@ size = Vector2(80, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ehjcp"]
 size = Vector2(30, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j5i1i"]
+size = Vector2(40, 40)
 
 [node name="BalDesVictimes" type="Node2D" unique_id=787788114]
 script = ExtResource("1_ehjcp")
@@ -90,3 +95,28 @@ horizontal_alignment = 1
 offset_right = 20.0
 offset_bottom = 26.0
 theme_override_font_sizes/font_size = 18
+
+[node name="SewerKey" parent="." unique_id=501279712 instance=ExtResource("6_jfwaq")]
+position = Vector2(100, 500)
+
+[node name="SewerEntrance" type="Area2D" parent="." unique_id=886373130]
+position = Vector2(150, 450)
+script = ExtResource("7_1geid")
+
+[node name="ColorRect" type="ColorRect" parent="SewerEntrance" unique_id=466410841]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(0.17254902, 0.24313726, 0.3137255, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SewerEntrance" unique_id=977646884]
+shape = SubResource("RectangleShape2D_j5i1i")
+
+[node name="PromptLabel" type="Label" parent="SewerEntrance" unique_id=1099237361]
+offset_left = -60.0
+offset_top = -40.0
+offset_right = 60.0
+offset_bottom = -17.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1

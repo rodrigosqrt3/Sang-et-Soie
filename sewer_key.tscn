@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://bgpn0lrtbk4if"]
+
+[ext_resource type="Script" uid="uid://dfcku4ow4nfqj" path="res://sewer_key.gd" id="1_5fcrh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jtcca"]
+size = Vector2(12, 12)
+
+[node name="SewerKey" type="Area2D" unique_id=501279712]
+script = ExtResource("1_5fcrh")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=2070783434]
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.94509804, 0.76862746, 0.05882353, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1332000123]
+shape = SubResource("RectangleShape2D_jtcca")
+
+[node name="PromptLabel" type="Label" parent="." unique_id=1980022670]
+offset_left = -60.0
+offset_top = -30.0
+offset_right = 60.0
+offset_bottom = -7.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1

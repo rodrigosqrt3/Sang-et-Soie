@@ -18,3 +18,8 @@ func update_objective_ui() -> void:
 		objective_label.text = "Objective: Report back to the Smuggler"
 	elif Global.current_quest == "talk_to_marguerite":
 		objective_label.text = "Objective: Ask Marguerite about the sewer gate"
+	elif Global.current_quest == "grab_key":
+		objective_label.text = "Objective: Pick up the sewer key from the bottom corner"
+	# ADD: The ultimate campaign complete victory text!
+	elif Global.current_quest == "campaign_complete":
+		objective_label.text = "CONGRATULATIONS! THEODORE'S DOSSIER SECURED - CHAPTER I COMPLETE"

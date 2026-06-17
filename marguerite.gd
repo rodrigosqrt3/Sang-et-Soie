@@ -33,13 +33,17 @@ func _on_body_exited(body: Node2D) -> void:
 		speech_bubble.text = ""
 
 func talk() -> void:
-	# Dialogue branches depending on the current active quest
 	if Global.current_quest == "talk_to_marguerite":
-		speech_bubble.text = "Marguerite: 'Étienne! You returned... Is Paris still bleeding?\nThe sewer key... I hid it under the floorboards.'"
+		speech_bubble.text = "Marguerite: 'Étienne! You returned... Is Paris still bleeding?\nThe sewer key... My late Madame used it to smuggle nobles out during the Terror.\nI hid it under the floorboards near the bottom corner.'"
+		
+		# CHANGE: Only advance the quest to "grab_key" once she reveals the secret!
+		Global.current_quest = "grab_key"
+	elif Global.current_quest == "grab_key":
+		speech_bubble.text = "Marguerite: 'The key is hidden under the floorboards in the bottom corner, Étienne.'"
 	else:
 		speech_bubble.text = "Madame prefers the Burgundy, Étienne..."
 		
-	await get_tree().create_timer(3.0).timeout
+	await get_tree().create_timer(4.5).timeout
 	
 	if is_player_nearby:
 		speech_bubble.text = "[E] Talk to Marguerite"

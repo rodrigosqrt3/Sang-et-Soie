@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://bmymyh0ssm0ca"]
+
+[ext_resource type="Script" uid="uid://fiua5j4uaumy" path="res://sewers.gd" id="1_u40lh"]
+[ext_resource type="PackedScene" uid="uid://dqtnpgsu840po" path="res://player.tscn" id="2_duw88"]
+[ext_resource type="TileSet" uid="uid://ek8ddh6mfcco" path="res://wall_tileset.tres" id="3_8jigc"]
+[ext_resource type="PackedScene" uid="uid://dgqtav46oa51k" path="res://boss.tscn" id="4_duw88"]
+
+[node name="Sewers" type="Node2D" unique_id=25008365]
+script = ExtResource("1_u40lh")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=769380546]
+offset_top = -1.0
+offset_right = 800.0
+offset_bottom = 599.0
+color = Color(0.05490196, 0.101960786, 0.05490196, 1)
+
+[node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("2_duw88")]
+
+[node name="WallMap" type="TileMapLayer" parent="." unique_id=243966396]
+tile_set = ExtResource("3_8jigc")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1183554145]
+
+[node name="ScoreLabel" type="Label" parent="UI" unique_id=991640648]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 94.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 24
+text = "Kills: 0"
+
+[node name="DashBar" type="ProgressBar" parent="UI" unique_id=1374476427]
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 140.0
+offset_bottom = 77.0
+value = 100.0
+show_percentage = false
+
+[node name="HealthBar" type="ProgressBar" parent="UI" unique_id=788363711]
+offset_left = 20.0
+offset_top = 95.0
+offset_right = 140.0
+offset_bottom = 110.0
+max_value = 3.0
+value = 3.0
+show_percentage = false
+
+[node name="Boss" parent="." unique_id=1642175314 instance=ExtResource("4_duw88")]
+position = Vector2(650, 300)

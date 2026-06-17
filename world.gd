@@ -9,10 +9,10 @@ const KILLS_TO_WIN: int = 10
 # Reference to the UI label
 @onready var score_label: Label = $UI/ScoreLabel
 @onready var dash_bar: ProgressBar = $UI/DashBar
+@onready var health_bar: ProgressBar = $UI/HealthBar
 
 func _ready() -> void:
 	update_score_ui()
-	# Procedurally generate crates at the start of the level
 	spawn_initial_crates()
 
 # Function called by enemies when they die
@@ -55,12 +55,14 @@ func chamber_cleared() -> void:
 	score_label.text = "CHAMBER CLEARED! ESCAPE THROUGH THE GRATE"
 
 func _process(_delta: float) -> void:
-	# Find the player to read their current dash cooldown
+	# Find the player to read their current stats
 	var players = get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
 		var player = players[0] as CharacterBody2D
 		
-		# Mathematical percentage calculation: (TotalTime - RemainingTime) / TotalTime * 100
+		# Update HUD Elements
+		health_bar.value = player.current_health # NEW: Updates player's health in real-time!
+		
 		var cooldown_percentage = (player.DASH_COOLDOWN_TIME - player.dash_cooldown_timer) / player.DASH_COOLDOWN_TIME * 100.0
 		dash_bar.value = cooldown_percentage
 

@@ -47,3 +47,18 @@ shape = SubResource("RectangleShape2D_onrkg")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1417809282]
 shape = SubResource("RectangleShape2D_i3pqv")
+
+[node name="DustParticles" type="CPUParticles2D" parent="." unique_id=793456523]
+position = Vector2(0, 18)
+emitting = false
+amount = 10
+lifetime = 0.4
+emission_shape = 3
+emission_rect_extents = Vector2(12, 4)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 15.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+color = Color(0.70980394, 0.6431373, 0.5803922, 0.5019608)
