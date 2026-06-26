@@ -14,6 +14,11 @@ var current_health: int = MAX_HEALTH
 const DASH_COOLDOWN_TIME: float = 1.0
 var dash_cooldown_timer: float = 0.0
 
+# Focus System (The "Mana" for Le Regard)
+const MAX_FOCUS: float = 100.0
+var current_focus: float = MAX_FOCUS
+var is_using_monocle: bool = false
+
 # Color variables for visual feedback
 const EMERALD_GREEN = Color(0.14, 0.45, 0.23)
 const DAMAGE_COLOR = Color.RED
@@ -44,31 +49,52 @@ func _ready() -> void:
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 
 func _physics_process(_delta: float) -> void:
+	# 1. Decay the dash cooldown timer
 	if dash_cooldown_timer > 0.0:
 		dash_cooldown_timer = move_toward(dash_cooldown_timer, 0.0, _delta)
+		
+	# 2. Bypass normal inputs if currently dashing
 	if is_dashing:
 		move_and_slide()
 		return
 		
-	# Standard 8-way movement (always enabled)
+	# 3. Standard 8-way movement
 	var direction := Input.get_vector("left", "right", "up", "down")
 	velocity = direction * SPEED
 	
-	# ONLY allow dashing and attacking if we are NOT in Safe Mode!
+	# 4. Actions allowed ONLY in combat (Not safe mode)
 	if not is_safe_mode:
-		# Trigger Dash (Spacebar)
+		# Trigger Dash
 		if Input.is_action_just_pressed("dash") and direction != Vector2.ZERO and dash_cooldown_timer == 0.0:
 			start_dash(direction)
 			
-		# Trigger Attack (Left Mouse Button)
+		# Trigger Attack
 		if Input.is_action_just_pressed("attack") and not is_attacking:
 			start_attack()
+			
+	# =========================================================
+	# NOVO CÓDIGO DO MONÓCULO (SLOW MOTION) ENTRA AQUI:
+	# =========================================================
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and current_focus > 0.0 and not is_safe_mode:
+		is_using_monocle = true
+		current_focus -= 30.0 * _delta # Drains focus fast
+		Engine.time_scale = 0.3 # SLOW MOTION!
+	else:
+		is_using_monocle = false
+		Engine.time_scale = 1.0 # Normal speed
 		
+		# REGENERATION: Slowly recover focus when not in use
+		if current_focus < MAX_FOCUS and not is_safe_mode:
+			current_focus = move_toward(current_focus, MAX_FOCUS, 15.0 * _delta) # Recovers fully in ~6.6 seconds
+	# =========================================================
+
+	# 5. Enable dust particles when running
 	if velocity.length() > 0.0 and not is_dashing and not is_safe_mode:
 		dust_particles.emitting = true
 	else:
 		dust_particles.emitting = false
 		
+	# 6. Apply all physical movement
 	move_and_slide()
 
 func start_dash(dash_direction: Vector2) -> void:

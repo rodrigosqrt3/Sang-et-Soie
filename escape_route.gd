@@ -9,8 +9,9 @@ func _on_body_entered(body: Node2D) -> void:
 		print("Chamber cleared! Returning victorious to the Bal des Victimes.")
 		Global.runs_completed += 1
 		
-		# Advance quest state if we cleared the streets!
 		if Global.current_quest == "enter_streets":
 			Global.current_quest = "report_to_smuggler"
 			
+		Global.save_game()
+		
 		get_tree().change_scene_to_file.call_deferred("res://bal_des_victimes.tscn")

@@ -45,14 +45,6 @@ color = Color(0.6566243, 0.92955774, 0.99141675, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Marguerite" unique_id=1093910598]
 shape = SubResource("RectangleShape2D_8w7dv")
 
-[node name="SpeechBubble" type="Label" parent="Marguerite" unique_id=791778816]
-offset_left = -100.0
-offset_top = -35.0
-offset_right = 100.0
-offset_bottom = -12.0
-theme_override_font_sizes/font_size = 12
-horizontal_alignment = 1
-
 [node name="ExitDoor" type="Area2D" parent="." unique_id=1375450896]
 position = Vector2(400, 60)
 script = ExtResource("3_8w7dv")
@@ -81,20 +73,55 @@ color = Color(0.21554184, 0.14639285, 0.57977635, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Smuggler" unique_id=63812750]
 shape = SubResource("RectangleShape2D_ehjcp")
 
-[node name="SpeechBubble" type="Label" parent="Smuggler" unique_id=779086079]
-offset_left = -150.0
-offset_top = -50.0
-offset_right = 150.0
-offset_bottom = -15.0
-theme_override_font_sizes/font_size = 12
-horizontal_alignment = 1
-
 [node name="UI" type="CanvasLayer" parent="." unique_id=973936076]
 
 [node name="ObjectiveLabel" type="Label" parent="UI" unique_id=1406407787]
 offset_right = 20.0
 offset_bottom = 26.0
 theme_override_font_sizes/font_size = 18
+
+[node name="DialoguePanel" type="ColorRect" parent="UI" unique_id=867243555]
+offset_left = 20.0
+offset_top = 430.0
+offset_right = 780.0
+offset_bottom = 580.0
+color = Color(0.078431375, 0.047058824, 0.047058824, 1)
+
+[node name="SpeakerName" type="Label" parent="UI/DialoguePanel" unique_id=289931499]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 15.0
+offset_right = 148.0
+offset_bottom = 41.0
+theme_override_colors/font_color = Color(0.83137256, 0.7647059, 0.6392157, 1)
+theme_override_font_sizes/font_size = 18
+text = "Speaker Name"
+
+[node name="DialogueText" type="Label" parent="UI/DialoguePanel" unique_id=72399303]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 45.0
+offset_right = 460.0
+offset_bottom = 135.0
+theme_override_colors/font_color = Color(0.8980392, 0.827451, 0.7019608, 1)
+theme_override_font_sizes/font_size = 15
+text = "Dialogue text goes here..."
+autowrap_mode = 2
+
+[node name="ChoiceBox" type="VBoxContainer" parent="UI/DialoguePanel" unique_id=244442994]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 15.0
+offset_right = 740.0
+offset_bottom = 135.0
+
+[node name="ButtonA" type="Button" parent="UI/DialoguePanel/ChoiceBox" unique_id=1374494059]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="ButtonB" type="Button" parent="UI/DialoguePanel/ChoiceBox" unique_id=656559891]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
 
 [node name="SewerKey" parent="." unique_id=501279712 instance=ExtResource("6_jfwaq")]
 position = Vector2(100, 500)

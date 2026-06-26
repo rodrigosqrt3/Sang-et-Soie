@@ -49,3 +49,16 @@ offset_bottom = 110.0
 max_value = 3.0
 value = 3.0
 show_percentage = false
+
+[node name="MonocleFilter" type="ColorRect" parent="UI" unique_id=1945752822]
+offset_right = 800.0
+offset_bottom = 600.0
+color = Color(0.5766823, 0.07139719, 0.63425225, 0)
+
+[node name="FocusBar" type="ProgressBar" parent="UI" unique_id=456114135]
+offset_left = 20.0
+offset_top = 110.0
+offset_right = 140.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(0.3312951, 0.94086313, 0.95901483, 1)
+show_percentage = false
