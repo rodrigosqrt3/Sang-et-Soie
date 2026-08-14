@@ -26,6 +26,8 @@ const DAMAGE_COLOR = Color.RED
 # State variables
 var is_dashing: bool = false
 var is_attacking: bool = false
+var is_dead: bool = false
+var is_invulnerable: bool = false
 
 # References to nodes
 @onready var attack_pivot: Node2D = $AttackPivot
@@ -37,6 +39,9 @@ var is_attacking: bool = false
 @onready var dust_particles: CPUParticles2D = $DustParticles
 
 func _ready() -> void:
+	collision_layer = 1
+	collision_mask = 1
+
 	# Apply persistent weapon scale upgrades from the Global state!
 	attack_pivot.scale = Global.weapon_scale
 	
@@ -59,7 +64,7 @@ func _physics_process(_delta: float) -> void:
 		return
 		
 	# 3. Standard 8-way movement
-	var direction := Input.get_vector("left", "right", "up", "down")
+	var direction: Vector2 = Input.get_vector("left", "right", "up", "down")
 	velocity = direction * SPEED
 	
 	# 4. Actions allowed ONLY in combat (Not safe mode)
@@ -77,15 +82,15 @@ func _physics_process(_delta: float) -> void:
 	# =========================================================
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and current_focus > 0.0 and not is_safe_mode:
 		is_using_monocle = true
-		current_focus -= 30.0 * _delta # Drains focus fast
-		Engine.time_scale = 0.3 # SLOW MOTION!
+		current_focus -= Global.focus_drain_rate * _delta
+		Engine.time_scale = 0.3
 	else:
 		is_using_monocle = false
 		Engine.time_scale = 1.0 # Normal speed
 		
 		# REGENERATION: Slowly recover focus when not in use
 		if current_focus < MAX_FOCUS and not is_safe_mode:
-			current_focus = move_toward(current_focus, MAX_FOCUS, 15.0 * _delta) # Recovers fully in ~6.6 seconds
+			current_focus = move_toward(current_focus, MAX_FOCUS, 7.0 * _delta)
 	# =========================================================
 
 	# 5. Enable dust particles when running
@@ -117,8 +122,8 @@ func start_attack() -> void:
 	is_attacking = true
 	
 	# Calculate the angle pointing to the mouse from the player position
-	var mouse_position := get_global_mouse_position()
-	var base_angle := global_position.angle_to_point(mouse_position)
+	var mouse_position: Vector2 = get_global_mouse_position()
+	var base_angle: float = global_position.angle_to_point(mouse_position)
 	
 	# Set the initial rotation of the pivot to start 60 degrees behind the mouse angle
 	attack_pivot.rotation = base_angle - deg_to_rad(60.0)
@@ -152,6 +157,12 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 		take_damage(1)
 
 func take_damage(amount: int) -> void:
+	# A well-timed dash passes through danger. Brief recovery frames after a hit
+	# prevent overlapping attacks from deleting the entire health bar at once.
+	if is_dead or is_dashing or is_invulnerable:
+		return
+
+	is_invulnerable = true
 	current_health -= amount
 	print("Player hit! Remaining HP: ", current_health)
 	camera.apply_shake(18.0, 4.0)
@@ -164,10 +175,19 @@ func take_damage(amount: int) -> void:
 	# Death check
 	if current_health <= 0:
 		die()
+		return
+
+	await get_tree().create_timer(0.35).timeout
+	is_invulnerable = false
 
 func die() -> void:
+	if is_dead:
+		return
+
+	is_dead = true
 	print("Player died! Returning to the start of the loop...")
-	# CHANGE: Instead of reloading the current scene, we load the safe Hub!
+	Engine.time_scale = 1.0
+	Global.record_failed_run()
 	get_tree().change_scene_to_file("res://bal_des_victimes.tscn")
 
 # Public function for other nodes (like enemies) to trigger camera shake
@@ -187,7 +207,7 @@ func freeze_frame(duration: float, time_scale: float = 0.0) -> void:
 func heal(amount: int) -> void:
 	# Only heal if the player is currently injured
 	if current_health < MAX_HEALTH:
-		current_health = clamp(current_health + amount, 0, MAX_HEALTH)
+		current_health = clampi(current_health + amount, 0, MAX_HEALTH)
 		print("Étienne drank champagne. Decadence restored. Remaining HP: ", current_health)
 		
 		# Visual feedback: Flash Gold when healing

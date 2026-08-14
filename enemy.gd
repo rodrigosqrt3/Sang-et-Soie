@@ -4,6 +4,7 @@ extends CharacterBody2D
 @export var max_health: int = 3
 @export var speed: float = 120.0
 @export var default_color: Color = Color(0.6, 0.0, 0.0) # Default dark red
+@export var detection_range: float = 280.0
 
 var current_health: int
 # Attack states
@@ -39,6 +40,9 @@ const FLASH_COLOR = Color.WHITE
 @onready var bark_label: Label = $BarkLabel
 
 func _ready() -> void:
+	add_to_group("enemies")
+	collision_layer = 1
+	collision_mask = 1
 	current_health = max_health
 	color_rect.color = default_color
 	
@@ -67,13 +71,6 @@ func _physics_process(delta: float) -> void:
 	if is_attacking:
 		return
 		
-	# Handle random barks while chasing
-	bark_timer += delta
-	if bark_timer >= BARK_COOLDOWN:
-		bark_timer = 0.0
-		if randf() < 0.25:
-			shout_dialogue(BARKS[randi() % BARKS.size()])
-			
 	# 3. Find the player to chase or attack
 	var players = get_tree().get_nodes_in_group("player")
 	
@@ -81,6 +78,19 @@ func _physics_process(delta: float) -> void:
 		var player = players[0] as CharacterBody2D
 		var distance = global_position.distance_to(player.global_position)
 		var direction = global_position.direction_to(player.global_position)
+
+		# Guards only react when Étienne enters their awareness radius. This makes
+		# slipping through the arcades without bloodshed a real possibility.
+		if distance > detection_range:
+			velocity = Vector2.ZERO
+			move_and_slide()
+			return
+
+		bark_timer += delta
+		if bark_timer >= BARK_COOLDOWN:
+			bark_timer = 0.0
+			if randf() < 0.25:
+				shout_dialogue(BARKS[randi() % BARKS.size()])
 		
 		# If in range and cooldown is ready, attack! Otherwise, chase.
 		if distance <= ATTACK_RANGE and attack_cooldown_timer == 0.0:
@@ -133,6 +143,7 @@ func take_damage(amount: int) -> void:
 
 func die() -> void:
 	print(name, " defeated!")
+	Global.record_guard_defeat()
 	
 	if get_parent().has_method("add_score"):
 		get_parent().add_score(1)

@@ -20,15 +20,113 @@ size = Vector2(30, 30)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j5i1i"]
 size = Vector2(40, 40)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_auguste"]
+size = Vector2(34, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_npc_body"]
+size = Vector2(24, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_horizontal"]
+size = Vector2(800, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_vertical"]
+size = Vector2(20, 600)
+
 [node name="BalDesVictimes" type="Node2D" unique_id=787788114]
 script = ExtResource("1_ehjcp")
+
+[node name="BoundaryTop" type="StaticBody2D" parent="."]
+position = Vector2(400, 0)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryTop"]
+shape = SubResource("RectangleShape2D_wall_horizontal")
+
+[node name="BoundaryBottom" type="StaticBody2D" parent="."]
+position = Vector2(400, 600)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryBottom"]
+shape = SubResource("RectangleShape2D_wall_horizontal")
+
+[node name="BoundaryLeft" type="StaticBody2D" parent="."]
+position = Vector2(0, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryLeft"]
+shape = SubResource("RectangleShape2D_wall_vertical")
+
+[node name="BoundaryRight" type="StaticBody2D" parent="."]
+position = Vector2(800, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryRight"]
+shape = SubResource("RectangleShape2D_wall_vertical")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1341833096]
 offset_right = 800.0
 offset_bottom = 600.0
 color = Color(0.101960786, 0.05882353, 0.05882353, 1)
 
-[node name="CharacterBody2D" parent="ColorRect" unique_id=1755139071 instance=ExtResource("1_nkxaq")]
+[node name="Floor" type="ColorRect" parent="."]
+offset_top = 315.0
+offset_right = 800.0
+offset_bottom = 600.0
+color = Color(0.075, 0.045, 0.04, 1)
+
+[node name="Carpet" type="ColorRect" parent="."]
+offset_left = 285.0
+offset_top = 55.0
+offset_right = 515.0
+offset_bottom = 600.0
+color = Color(0.24, 0.025, 0.045, 0.72)
+
+[node name="CandleLeft" type="ColorRect" parent="."]
+offset_left = 85.0
+offset_top = 105.0
+offset_right = 91.0
+offset_bottom = 145.0
+color = Color(0.92, 0.68, 0.28, 1)
+
+[node name="CandleRight" type="ColorRect" parent="."]
+offset_left = 709.0
+offset_top = 105.0
+offset_right = 715.0
+offset_bottom = 145.0
+color = Color(0.92, 0.68, 0.28, 1)
+
+[node name="Auguste" type="Node2D" parent="."]
+position = Vector2(90, 230)
+
+[node name="Body" type="ColorRect" parent="Auguste"]
+offset_left = -15.0
+offset_top = -20.0
+offset_right = 15.0
+offset_bottom = 20.0
+color = Color(0.035, 0.025, 0.04, 1)
+
+[node name="PhysicalBody" type="StaticBody2D" parent="Auguste"]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Auguste/PhysicalBody"]
+shape = SubResource("RectangleShape2D_auguste")
+
+[node name="Label" type="Label" parent="Auguste"]
+offset_left = -45.0
+offset_top = -48.0
+offset_right = 45.0
+offset_bottom = -25.0
+theme_override_colors/font_color = Color(0.58, 0.5, 0.46, 1)
+theme_override_font_sizes/font_size = 12
+text = "Auguste"
+horizontal_alignment = 1
+
+[node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("1_nkxaq")]
 position = Vector2(400, 350)
 is_safe_mode = true
 
@@ -44,6 +142,22 @@ color = Color(0.6566243, 0.92955774, 0.99141675, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Marguerite" unique_id=1093910598]
 shape = SubResource("RectangleShape2D_8w7dv")
+
+[node name="PhysicalBody" type="StaticBody2D" parent="Marguerite"]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Marguerite/PhysicalBody"]
+shape = SubResource("RectangleShape2D_npc_body")
+
+[node name="Name" type="Label" parent="Marguerite"]
+offset_left = -65.0
+offset_top = -43.0
+offset_right = 65.0
+offset_bottom = -20.0
+theme_override_font_sizes/font_size = 12
+text = "Marguerite"
+horizontal_alignment = 1
 
 [node name="ExitDoor" type="Area2D" parent="." unique_id=1375450896]
 position = Vector2(400, 60)
@@ -73,7 +187,33 @@ color = Color(0.21554184, 0.14639285, 0.57977635, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Smuggler" unique_id=63812750]
 shape = SubResource("RectangleShape2D_ehjcp")
 
+[node name="PhysicalBody" type="StaticBody2D" parent="Smuggler"]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Smuggler/PhysicalBody"]
+shape = SubResource("RectangleShape2D_npc_body")
+
+[node name="Name" type="Label" parent="Smuggler"]
+offset_left = -70.0
+offset_top = -43.0
+offset_right = 70.0
+offset_bottom = -20.0
+theme_override_font_sizes/font_size = 12
+text = "The Belgian"
+horizontal_alignment = 1
+
 [node name="UI" type="CanvasLayer" parent="." unique_id=973936076]
+
+[node name="BalTitle" type="Label" parent="UI"]
+offset_left = 280.0
+offset_top = 15.0
+offset_right = 520.0
+offset_bottom = 42.0
+theme_override_colors/font_color = Color(0.72, 0.6, 0.48, 1)
+theme_override_font_sizes/font_size = 18
+text = "BAL DES VICTIMES"
+horizontal_alignment = 1
 
 [node name="ObjectiveLabel" type="Label" parent="UI" unique_id=1406407787]
 offset_right = 20.0

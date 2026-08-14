@@ -5,8 +5,46 @@
 [ext_resource type="TileSet" uid="uid://ek8ddh6mfcco" path="res://wall_tileset.tres" id="3_8jigc"]
 [ext_resource type="PackedScene" uid="uid://dgqtav46oa51k" path="res://boss.tscn" id="4_duw88"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_horizontal"]
+size = Vector2(800, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_vertical"]
+size = Vector2(20, 600)
+
 [node name="Sewers" type="Node2D" unique_id=25008365]
 script = ExtResource("1_u40lh")
+
+[node name="BoundaryTop" type="StaticBody2D" parent="."]
+position = Vector2(400, 0)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryTop"]
+shape = SubResource("RectangleShape2D_wall_horizontal")
+
+[node name="BoundaryBottom" type="StaticBody2D" parent="."]
+position = Vector2(400, 600)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryBottom"]
+shape = SubResource("RectangleShape2D_wall_horizontal")
+
+[node name="BoundaryLeft" type="StaticBody2D" parent="."]
+position = Vector2(0, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryLeft"]
+shape = SubResource("RectangleShape2D_wall_vertical")
+
+[node name="BoundaryRight" type="StaticBody2D" parent="."]
+position = Vector2(800, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryRight"]
+shape = SubResource("RectangleShape2D_wall_vertical")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=769380546]
 offset_top = -1.0
@@ -15,6 +53,7 @@ offset_bottom = 599.0
 color = Color(0.05490196, 0.101960786, 0.05490196, 1)
 
 [node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("2_duw88")]
+position = Vector2(80, 300)
 
 [node name="WallMap" type="TileMapLayer" parent="." unique_id=243966396]
 tile_set = ExtResource("3_8jigc")
@@ -27,7 +66,7 @@ offset_top = 20.0
 offset_right = 94.0
 offset_bottom = 54.0
 theme_override_font_sizes/font_size = 24
-text = "Kills: 0"
+text = "THE CAPTAIN HOLDS THE COURIER'S LEDGER"
 
 [node name="DashBar" type="ProgressBar" parent="UI" unique_id=1374476427]
 offset_left = 20.0
@@ -44,6 +83,25 @@ offset_right = 140.0
 offset_bottom = 110.0
 max_value = 3.0
 value = 3.0
+show_percentage = false
+
+[node name="BossLabel" type="Label" parent="UI"]
+offset_left = 550.0
+offset_top = 20.0
+offset_right = 780.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(0.86, 0.72, 0.54, 1)
+theme_override_font_sizes/font_size = 16
+text = "THE CAPTAIN"
+horizontal_alignment = 2
+
+[node name="BossHealthBar" type="ProgressBar" parent="UI"]
+offset_left = 550.0
+offset_top = 50.0
+offset_right = 780.0
+offset_bottom = 66.0
+max_value = 7.0
+value = 7.0
 show_percentage = false
 
 [node name="Boss" parent="." unique_id=1642175314 instance=ExtResource("4_duw88")]

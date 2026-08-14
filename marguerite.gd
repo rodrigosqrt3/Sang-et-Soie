@@ -25,12 +25,12 @@ func _on_body_exited(body: Node2D) -> void:
 
 func talk() -> void:
 	if Global.current_quest == "talk_to_marguerite":
-		# Showing the expanded narrative on the beautiful bottom HUD dialogue!
 		hub.show_dialogue(
 			"Marguerite Colbert", 
-			"Étienne! You returned... Is Paris still bleeding? The sewer key... My late Madame used it to smuggle nobles out during the Terror. I hid it under the floorboards near the bottom corner."
+			"Madame disliked locked doors. During the Terror, her passage carried nobles, servants, printers. Anyone who needed to vanish. I hid the key beneath the loose boards in the lower corner. She would complain about the dust."
 		)
 		Global.current_quest = "grab_key"
+		Global.save_game()
 	elif Global.current_quest == "grab_key":
 		hub.show_dialogue("Marguerite Colbert", "The key is hidden under the floorboards in the bottom corner, Étienne.")
 	else:

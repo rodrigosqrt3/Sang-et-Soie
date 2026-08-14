@@ -9,8 +9,13 @@ func _on_body_entered(body: Node2D) -> void:
 		print("Chamber cleared! Returning victorious to the Bal des Victimes.")
 		Global.runs_completed += 1
 		
-		if Global.current_quest == "enter_streets":
-			Global.current_quest = "report_to_smuggler"
+		if Global.current_quest == "enter_streets" and Global.has_list_fragment:
+			# The courier's envelope contains five francs. The reward comes from
+			# recovering information, never from killing guards.
+			Global.francs += 5
+			if Global.fragment_recovered_without_killing:
+				Global.smuggler_trust += 1
+			Global.current_quest = "report_fragment"
 			
 		Global.save_game()
 		

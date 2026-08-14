@@ -5,23 +5,327 @@
 [ext_resource type="TileSet" uid="uid://ek8ddh6mfcco" path="res://wall_tileset.tres" id="3_036b0"]
 [ext_resource type="PackedScene" uid="uid://cvpnqx4lfaogd" path="res://enemy.tscn" id="3_tlwt5"]
 [ext_resource type="Script" uid="uid://b60d2yjjgmcqt" path="res://enemy_spawner.gd" id="4_aqk2v"]
+[ext_resource type="PackedScene" path="res://list_fragment.tscn" id="5_list_fragment"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_horizontal"]
+size = Vector2(800, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_vertical"]
+size = Vector2(20, 600)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shop_front"]
+size = Vector2(160, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_column"]
+size = Vector2(20, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kiosk"]
+size = Vector2(70, 44)
 
 [node name="World" type="Node2D" unique_id=1992204028]
 script = ExtResource("1_036b0")
 
+[node name="Ground" type="ColorRect" parent="."]
+offset_right = 800.0
+offset_bottom = 600.0
+color = Color(0.23, 0.22, 0.2, 1)
+
+[node name="Garden" type="ColorRect" parent="."]
+offset_left = 250.0
+offset_top = 145.0
+offset_right = 550.0
+offset_bottom = 465.0
+color = Color(0.12, 0.22, 0.14, 1)
+
+[node name="GardenPath" type="ColorRect" parent="."]
+offset_left = 385.0
+offset_top = 145.0
+offset_right = 415.0
+offset_bottom = 465.0
+color = Color(0.34, 0.32, 0.27, 1)
+
+[node name="BoundaryTop" type="StaticBody2D" parent="."]
+position = Vector2(400, 0)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryTop"]
+shape = SubResource("RectangleShape2D_wall_horizontal")
+
+[node name="BoundaryBottom" type="StaticBody2D" parent="."]
+position = Vector2(400, 600)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryBottom"]
+shape = SubResource("RectangleShape2D_wall_horizontal")
+
+[node name="BoundaryLeft" type="StaticBody2D" parent="."]
+position = Vector2(0, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryLeft"]
+shape = SubResource("RectangleShape2D_wall_vertical")
+
+[node name="BoundaryRight" type="StaticBody2D" parent="."]
+position = Vector2(800, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryRight"]
+shape = SubResource("RectangleShape2D_wall_vertical")
+
+[node name="ShopLeft" type="StaticBody2D" parent="."]
+position = Vector2(110, 120)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Front" type="ColorRect" parent="ShopLeft"]
+offset_left = -80.0
+offset_top = -12.0
+offset_right = 80.0
+offset_bottom = 12.0
+color = Color(0.34, 0.18, 0.1, 1)
+
+[node name="Sign" type="Label" parent="ShopLeft"]
+offset_left = -70.0
+offset_top = -36.0
+offset_right = 70.0
+offset_bottom = -13.0
+theme_override_font_sizes/font_size = 12
+text = "PRINTS"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShopLeft"]
+shape = SubResource("RectangleShape2D_shop_front")
+
+[node name="ShopMiddle" type="StaticBody2D" parent="."]
+position = Vector2(360, 120)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Front" type="ColorRect" parent="ShopMiddle"]
+offset_left = -80.0
+offset_top = -12.0
+offset_right = 80.0
+offset_bottom = 12.0
+color = Color(0.3, 0.14, 0.16, 1)
+
+[node name="Sign" type="Label" parent="ShopMiddle"]
+offset_left = -70.0
+offset_top = -36.0
+offset_right = 70.0
+offset_bottom = -13.0
+theme_override_font_sizes/font_size = 12
+text = "GAMING"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShopMiddle"]
+shape = SubResource("RectangleShape2D_shop_front")
+
+[node name="ShopRight" type="StaticBody2D" parent="."]
+position = Vector2(650, 120)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Front" type="ColorRect" parent="ShopRight"]
+offset_left = -80.0
+offset_top = -12.0
+offset_right = 80.0
+offset_bottom = 12.0
+color = Color(0.16, 0.19, 0.27, 1)
+
+[node name="Sign" type="Label" parent="ShopRight"]
+offset_left = -70.0
+offset_top = -36.0
+offset_right = 70.0
+offset_bottom = -13.0
+theme_override_font_sizes/font_size = 12
+text = "BOOKSELLER"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShopRight"]
+shape = SubResource("RectangleShape2D_shop_front")
+
+[node name="ColumnL1" type="StaticBody2D" parent="."]
+position = Vector2(220, 180)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnL1"]
+offset_left = -10.0
+offset_top = -32.0
+offset_right = 10.0
+offset_bottom = 32.0
+color = Color(0.58, 0.55, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnL1"]
+shape = SubResource("RectangleShape2D_column")
+
+[node name="ColumnL2" type="StaticBody2D" parent="."]
+position = Vector2(220, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnL2"]
+offset_left = -10.0
+offset_top = -32.0
+offset_right = 10.0
+offset_bottom = 32.0
+color = Color(0.58, 0.55, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnL2"]
+shape = SubResource("RectangleShape2D_column")
+
+[node name="ColumnL3" type="StaticBody2D" parent="."]
+position = Vector2(220, 420)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnL3"]
+offset_left = -10.0
+offset_top = -32.0
+offset_right = 10.0
+offset_bottom = 32.0
+color = Color(0.58, 0.55, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnL3"]
+shape = SubResource("RectangleShape2D_column")
+
+[node name="ColumnR1" type="StaticBody2D" parent="."]
+position = Vector2(580, 180)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnR1"]
+offset_left = -10.0
+offset_top = -32.0
+offset_right = 10.0
+offset_bottom = 32.0
+color = Color(0.58, 0.55, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnR1"]
+shape = SubResource("RectangleShape2D_column")
+
+[node name="ColumnR2" type="StaticBody2D" parent="."]
+position = Vector2(580, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnR2"]
+offset_left = -10.0
+offset_top = -32.0
+offset_right = 10.0
+offset_bottom = 32.0
+color = Color(0.58, 0.55, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnR2"]
+shape = SubResource("RectangleShape2D_column")
+
+[node name="ColumnR3" type="StaticBody2D" parent="."]
+position = Vector2(580, 420)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnR3"]
+offset_left = -10.0
+offset_top = -32.0
+offset_right = 10.0
+offset_bottom = 32.0
+color = Color(0.58, 0.55, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnR3"]
+shape = SubResource("RectangleShape2D_column")
+
+[node name="KioskLeft" type="StaticBody2D" parent="."]
+position = Vector2(105, 300)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="KioskLeft"]
+offset_left = -35.0
+offset_top = -22.0
+offset_right = 35.0
+offset_bottom = 22.0
+color = Color(0.28, 0.13, 0.08, 1)
+
+[node name="Label" type="Label" parent="KioskLeft"]
+offset_left = -45.0
+offset_top = -18.0
+offset_right = 45.0
+offset_bottom = 18.0
+theme_override_font_sizes/font_size = 11
+text = "JOURNALS"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KioskLeft"]
+shape = SubResource("RectangleShape2D_kiosk")
+
+[node name="KioskRight" type="StaticBody2D" parent="."]
+position = Vector2(695, 330)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="KioskRight"]
+offset_left = -35.0
+offset_top = -22.0
+offset_right = 35.0
+offset_bottom = 22.0
+color = Color(0.22, 0.1, 0.15, 1)
+
+[node name="Label" type="Label" parent="KioskRight"]
+offset_left = -45.0
+offset_top = -18.0
+offset_right = 45.0
+offset_bottom = 18.0
+theme_override_font_sizes/font_size = 11
+text = "CARDS"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KioskRight"]
+shape = SubResource("RectangleShape2D_kiosk")
+
+[node name="GardenLabel" type="Label" parent="."]
+offset_left = 330.0
+offset_top = 285.0
+offset_right = 470.0
+offset_bottom = 315.0
+theme_override_colors/font_color = Color(0.48, 0.6, 0.46, 1)
+theme_override_font_sizes/font_size = 13
+text = "OPEN GARDEN"
+horizontal_alignment = 1
+
+[node name="EntryLabel" type="Label" parent="."]
+offset_left = 30.0
+offset_top = 545.0
+offset_right = 160.0
+offset_bottom = 572.0
+theme_override_colors/font_color = Color(0.73, 0.62, 0.46, 1)
+theme_override_font_sizes/font_size = 12
+text = "RETURN GRATE"
+horizontal_alignment = 1
+
 [node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("1_f3sb7")]
+position = Vector2(80, 520)
 
 [node name="WallMap" type="TileMapLayer" parent="." unique_id=1978645290]
+enabled = false
+visible = false
+collision_enabled = false
 tile_map_data = PackedByteArray("AAD8//z/AAAAAAAAAAD8//3/AAAAAAEAAAD8//7/AAAAAAIAAAD8////AAAAAAMAAAD8/wAAAAAAAAQAAAD8/wEAAAAAAAUAAAD8/wIAAAAAAAYAAAD8/wMAAAAAAAcAAAD9//z/AAABAAAAAAD9//3/AAABAAEAAAD9//7/AAABAAIAAAD9////AAABAAMAAAD9/wAAAAABAAQAAAD9/wEAAAABAAUAAAD9/wIAAAABAAYAAAD9/wMAAAABAAcAAAD+//z/AAACAAAAAAD+//3/AAACAAEAAAD+//7/AAACAAIAAAD+////AAACAAMAAAD+/wAAAAACAAQAAAD+/wEAAAACAAUAAAD+/wIAAAACAAYAAAD+/wMAAAACAAcAAAD///z/AAADAAAAAAD///3/AAADAAEAAAD///7/AAADAAIAAAD/////AAADAAMAAAD//wAAAAADAAQAAAD//wEAAAADAAUAAAD//wIAAAADAAYAAAD//wMAAAADAAcAAAAAAPz/AAAEAAAAAAAAAP3/AAAEAAEAAAAAAP7/AAAEAAIAAAAAAP//AAAEAAMAAAAAAAAAAAAEAAQAAAAAAAEAAAAEAAUAAAAAAAIAAAAEAAYAAAAAAAMAAAAEAAcAAAABAPz/AAAFAAAAAAABAP3/AAAFAAEAAAABAP7/AAAFAAIAAAABAP//AAAFAAMAAAABAAAAAAAFAAQAAAABAAEAAAAFAAUAAAABAAIAAAAFAAYAAAABAAMAAAAFAAcAAAACAPz/AAAGAAAAAAACAP3/AAAGAAEAAAACAP7/AAAGAAIAAAACAP//AAAGAAMAAAACAAAAAAAGAAQAAAACAAEAAAAGAAUAAAACAAIAAAAGAAYAAAACAAMAAAAGAAcAAAADAPz/AAAHAAAAAAADAP3/AAAHAAEAAAADAP7/AAAHAAIAAAADAP//AAAHAAMAAAADAAAAAAAHAAQAAAADAAEAAAAHAAUAAAADAAIAAAAHAAYAAAADAAMAAAAHAAcAAAAJAPT/AAAAAAAAAAAJAPX/AAAAAAEAAAAJAPb/AAAAAAIAAAAJAPf/AAAAAAMAAAAJAPj/AAAAAAQAAAAJAPn/AAAAAAUAAAAJAPr/AAAAAAYAAAAJAPv/AAAAAAcAAAAKAPT/AAABAAAAAAAKAPX/AAABAAEAAAAKAPb/AAABAAIAAAAKAPf/AAABAAMAAAAKAPj/AAABAAQAAAAKAPn/AAABAAUAAAAKAPr/AAABAAYAAAAKAPv/AAABAAcAAAALAPT/AAACAAAAAAALAPX/AAACAAEAAAALAPb/AAACAAIAAAALAPf/AAACAAMAAAALAPj/AAACAAQAAAALAPn/AAACAAUAAAALAPr/AAACAAYAAAALAPv/AAACAAcAAAAMAPT/AAADAAAAAAAMAPX/AAADAAEAAAAMAPb/AAADAAIAAAAMAPf/AAADAAMAAAAMAPj/AAADAAQAAAAMAPn/AAADAAUAAAAMAPr/AAADAAYAAAAMAPv/AAADAAcAAAANAPT/AAAEAAAAAAANAPX/AAAEAAEAAAANAPb/AAAEAAIAAAANAPf/AAAEAAMAAAANAPj/AAAEAAQAAAANAPn/AAAEAAUAAAANAPr/AAAEAAYAAAANAPv/AAAEAAcAAAAOAPT/AAAFAAAAAAAOAPX/AAAFAAEAAAAOAPb/AAAFAAIAAAAOAPf/AAAFAAMAAAAOAPj/AAAFAAQAAAAOAPn/AAAFAAUAAAAOAPr/AAAFAAYAAAAOAPv/AAAFAAcAAAAPAPT/AAAGAAAAAAAPAPX/AAAGAAEAAAAPAPb/AAAGAAIAAAAPAPf/AAAGAAMAAAAPAPj/AAAGAAQAAAAPAPn/AAAGAAUAAAAPAPr/AAAGAAYAAAAPAPv/AAAGAAcAAAAQAPT/AAAHAAAAAAAQAPX/AAAHAAEAAAAQAPb/AAAHAAIAAAAQAPf/AAAHAAMAAAAQAPj/AAAHAAQAAAAQAPn/AAAHAAUAAAAQAPr/AAAHAAYAAAAQAPv/AAAHAAcAAAAXAAkAAAAAAAAAAAAXAAoAAAAAAAEAAAAXAAsAAAAAAAIAAAAXAAwAAAAAAAMAAAAXAA0AAAAAAAQAAAAXAA4AAAAAAAUAAAAXAA8AAAAAAAYAAAAXABAAAAAAAAcAAAAYAAkAAAABAAAAAAAYAAoAAAABAAEAAAAYAAsAAAABAAIAAAAYAAwAAAABAAMAAAAYAA0AAAABAAQAAAAYAA4AAAABAAUAAAAYAA8AAAABAAYAAAAYABAAAAABAAcAAAAZAAkAAAACAAAAAAAZAAoAAAACAAEAAAAZAAsAAAACAAIAAAAZAAwAAAACAAMAAAAZAA0AAAACAAQAAAAZAA4AAAACAAUAAAAZAA8AAAACAAYAAAAZABAAAAACAAcAAAAaAAkAAAADAAAAAAAaAAoAAAADAAEAAAAaAAsAAAADAAIAAAAaAAwAAAADAAMAAAAaAA0AAAADAAQAAAAaAA4AAAADAAUAAAAaAA8AAAADAAYAAAAaABAAAAADAAcAAAAbAAkAAAAEAAAAAAAbAAoAAAAEAAEAAAAbAAsAAAAEAAIAAAAbAAwAAAAEAAMAAAAbAA0AAAAEAAQAAAAbAA4AAAAEAAUAAAAbAA8AAAAEAAYAAAAbABAAAAAEAAcAAAAcAAkAAAAFAAAAAAAcAAoAAAAFAAEAAAAcAAsAAAAFAAIAAAAcAAwAAAAFAAMAAAAcAA0AAAAFAAQAAAAcAA4AAAAFAAUAAAAcAA8AAAAFAAYAAAAcABAAAAAFAAcAAAAdAAkAAAAGAAAAAAAdAAoAAAAGAAEAAAAdAAsAAAAGAAIAAAAdAAwAAAAGAAMAAAAdAA0AAAAGAAQAAAAdAA4AAAAGAAUAAAAdAA8AAAAGAAYAAAAdABAAAAAGAAcAAAAeAAkAAAAHAAAAAAAeAAoAAAAHAAEAAAAeAAsAAAAHAAIAAAAeAAwAAAAHAAMAAAAeAA0AAAAHAAQAAAAeAA4AAAAHAAUAAAAeAA8AAAAHAAYAAAAeABAAAAAHAAcAAAACAAcAAAAAAAAAAAACAAgAAAAAAAEAAAACAAkAAAAAAAIAAAACAAoAAAAAAAMAAAACAAsAAAAAAAQAAAACAAwAAAAAAAUAAAACAA0AAAAAAAYAAAACAA4AAAAAAAcAAAADAAcAAAABAAAAAAADAAgAAAABAAEAAAADAAkAAAABAAIAAAADAAoAAAABAAMAAAADAAsAAAABAAQAAAADAAwAAAABAAUAAAADAA0AAAABAAYAAAADAA4AAAABAAcAAAAEAAcAAAACAAAAAAAEAAgAAAACAAEAAAAEAAkAAAACAAIAAAAEAAoAAAACAAMAAAAEAAsAAAACAAQAAAAEAAwAAAACAAUAAAAEAA0AAAACAAYAAAAEAA4AAAACAAcAAAAFAAcAAAADAAAAAAAFAAgAAAADAAEAAAAFAAkAAAADAAIAAAAFAAoAAAADAAMAAAAFAAsAAAADAAQAAAAFAAwAAAADAAUAAAAFAA0AAAADAAYAAAAFAA4AAAADAAcAAAAGAAcAAAAEAAAAAAAGAAgAAAAEAAEAAAAGAAkAAAAEAAIAAAAGAAoAAAAEAAMAAAAGAAsAAAAEAAQAAAAGAAwAAAAEAAUAAAAGAA0AAAAEAAYAAAAGAA4AAAAEAAcAAAAHAAcAAAAFAAAAAAAHAAgAAAAFAAEAAAAHAAkAAAAFAAIAAAAHAAoAAAAFAAMAAAAHAAsAAAAFAAQAAAAHAAwAAAAFAAUAAAAHAA0AAAAFAAYAAAAHAA4AAAAFAAcAAAAIAAcAAAAGAAAAAAAIAAgAAAAGAAEAAAAIAAkAAAAGAAIAAAAIAAoAAAAGAAMAAAAIAAsAAAAGAAQAAAAIAAwAAAAGAAUAAAAIAA0AAAAGAAYAAAAIAA4AAAAGAAcAAAAJAAcAAAAHAAAAAAAJAAgAAAAHAAEAAAAJAAkAAAAHAAIAAAAJAAoAAAAHAAMAAAAJAAsAAAAHAAQAAAAJAAwAAAAHAAUAAAAJAA0AAAAHAAYAAAAJAA4AAAAHAAcAAAAYAPT/AAAAAAAAAAAYAPX/AAAAAAEAAAAYAPb/AAAAAAIAAAAYAPf/AAAAAAMAAAAYAPj/AAAAAAQAAAAYAPn/AAAAAAUAAAAYAPr/AAAAAAYAAAAYAPv/AAAAAAcAAAAZAPT/AAABAAAAAAAZAPX/AAABAAEAAAAZAPb/AAABAAIAAAAZAPf/AAABAAMAAAAZAPj/AAABAAQAAAAZAPn/AAABAAUAAAAZAPr/AAABAAYAAAAZAPv/AAABAAcAAAAaAPT/AAACAAAAAAAaAPX/AAACAAEAAAAaAPb/AAACAAIAAAAaAPf/AAACAAMAAAAaAPj/AAACAAQAAAAaAPn/AAACAAUAAAAaAPr/AAACAAYAAAAaAPv/AAACAAcAAAAbAPT/AAADAAAAAAAbAPX/AAADAAEAAAAbAPb/AAADAAIAAAAbAPf/AAADAAMAAAAbAPj/AAADAAQAAAAbAPn/AAADAAUAAAAbAPr/AAADAAYAAAAbAPv/AAADAAcAAAAcAPT/AAAEAAAAAAAcAPX/AAAEAAEAAAAcAPb/AAAEAAIAAAAcAPf/AAAEAAMAAAAcAPj/AAAEAAQAAAAcAPn/AAAEAAUAAAAcAPr/AAAEAAYAAAAcAPv/AAAEAAcAAAAdAPT/AAAFAAAAAAAdAPX/AAAFAAEAAAAdAPb/AAAFAAIAAAAdAPf/AAAFAAMAAAAdAPj/AAAFAAQAAAAdAPn/AAAFAAUAAAAdAPr/AAAFAAYAAAAdAPv/AAAFAAcAAAAeAPT/AAAGAAAAAAAeAPX/AAAGAAEAAAAeAPb/AAAGAAIAAAAeAPf/AAAGAAMAAAAeAPj/AAAGAAQAAAAeAPn/AAAGAAUAAAAeAPr/AAAGAAYAAAAeAPv/AAAGAAcAAAAfAPT/AAAHAAAAAAAfAPX/AAAHAAEAAAAfAPb/AAAHAAIAAAAfAPf/AAAHAAMAAAAfAPj/AAAHAAQAAAAfAPn/AAAHAAUAAAAfAPr/AAAHAAYAAAAfAPv/AAAHAAcAAAD1/wcAAAAAAAAAAAD1/wgAAAAAAAEAAAD1/wkAAAAAAAIAAAD1/woAAAAAAAMAAAD1/wsAAAAAAAQAAAD1/wwAAAAAAAUAAAD1/w0AAAAAAAYAAAD1/w4AAAAAAAcAAAD2/wcAAAABAAAAAAD2/wgAAAABAAEAAAD2/wkAAAABAAIAAAD2/woAAAABAAMAAAD2/wsAAAABAAQAAAD2/wwAAAABAAUAAAD2/w0AAAABAAYAAAD2/w4AAAABAAcAAAD3/wcAAAACAAAAAAD3/wgAAAACAAEAAAD3/wkAAAACAAIAAAD3/woAAAACAAMAAAD3/wsAAAACAAQAAAD3/wwAAAACAAUAAAD3/w0AAAACAAYAAAD3/w4AAAACAAcAAAD4/wcAAAADAAAAAAD4/wgAAAADAAEAAAD4/wkAAAADAAIAAAD4/woAAAADAAMAAAD4/wsAAAADAAQAAAD4/wwAAAADAAUAAAD4/w0AAAADAAYAAAD4/w4AAAADAAcAAAD5/wcAAAAEAAAAAAD5/wgAAAAEAAEAAAD5/wkAAAAEAAIAAAD5/woAAAAEAAMAAAD5/wsAAAAEAAQAAAD5/wwAAAAEAAUAAAD5/w0AAAAEAAYAAAD5/w4AAAAEAAcAAAD6/wcAAAAFAAAAAAD6/wgAAAAFAAEAAAD6/wkAAAAFAAIAAAD6/woAAAAFAAMAAAD6/wsAAAAFAAQAAAD6/wwAAAAFAAUAAAD6/w0AAAAFAAYAAAD6/w4AAAAFAAcAAAD7/wcAAAAGAAAAAAD7/wgAAAAGAAEAAAD7/wkAAAAGAAIAAAD7/woAAAAGAAMAAAD7/wsAAAAGAAQAAAD7/wwAAAAGAAUAAAD7/w0AAAAGAAYAAAD7/w4AAAAGAAcAAAD8/wcAAAAHAAAAAAD8/wgAAAAHAAEAAAD8/wkAAAAHAAIAAAD8/woAAAAHAAMAAAD8/wsAAAAHAAQAAAD8/wwAAAAHAAUAAAD8/w0AAAAHAAYAAAD8/w4AAAAHAAcAAADz//H/AAAAAAAAAADz//L/AAAAAAEAAADz//P/AAAAAAIAAADz//T/AAAAAAMAAADz//X/AAAAAAQAAADz//b/AAAAAAUAAADz//f/AAAAAAYAAADz//j/AAAAAAcAAAD0//H/AAABAAAAAAD0//L/AAABAAEAAAD0//P/AAABAAIAAAD0//T/AAABAAMAAAD0//X/AAABAAQAAAD0//b/AAABAAUAAAD0//f/AAABAAYAAAD0//j/AAABAAcAAAD1//H/AAACAAAAAAD1//L/AAACAAEAAAD1//P/AAACAAIAAAD1//T/AAACAAMAAAD1//X/AAACAAQAAAD1//b/AAACAAUAAAD1//f/AAACAAYAAAD1//j/AAACAAcAAAD2//H/AAADAAAAAAD2//L/AAADAAEAAAD2//P/AAADAAIAAAD2//T/AAADAAMAAAD2//X/AAADAAQAAAD2//b/AAADAAUAAAD2//f/AAADAAYAAAD2//j/AAADAAcAAAD3//H/AAAEAAAAAAD3//L/AAAEAAEAAAD3//P/AAAEAAIAAAD3//T/AAAEAAMAAAD3//X/AAAEAAQAAAD3//b/AAAEAAUAAAD3//f/AAAEAAYAAAD3//j/AAAEAAcAAAD4//H/AAAFAAAAAAD4//L/AAAFAAEAAAD4//P/AAAFAAIAAAD4//T/AAAFAAMAAAD4//X/AAAFAAQAAAD4//b/AAAFAAUAAAD4//f/AAAFAAYAAAD4//j/AAAFAAcAAAD5//H/AAAGAAAAAAD5//L/AAAGAAEAAAD5//P/AAAGAAIAAAD5//T/AAAGAAMAAAD5//X/AAAGAAQAAAD5//b/AAAGAAUAAAD5//f/AAAGAAYAAAD5//j/AAAGAAcAAAD6//H/AAAHAAAAAAD6//L/AAAHAAEAAAD6//P/AAAHAAIAAAD6//T/AAAHAAMAAAD6//X/AAAHAAQAAAD6//b/AAAHAAUAAAD6//f/AAAHAAYAAAD6//j/AAAHAAcAAADk//v/AAAAAAAAAADk//z/AAAAAAEAAADk//3/AAAAAAIAAADk//7/AAAAAAMAAADk////AAAAAAQAAADk/wAAAAAAAAUAAADk/wEAAAAAAAYAAADk/wIAAAAAAAcAAADl//v/AAABAAAAAADl//z/AAABAAEAAADl//3/AAABAAIAAADl//7/AAABAAMAAADl////AAABAAQAAADl/wAAAAABAAUAAADl/wEAAAABAAYAAADl/wIAAAABAAcAAADm//v/AAACAAAAAADm//z/AAACAAEAAADm//3/AAACAAIAAADm//7/AAACAAMAAADm////AAACAAQAAADm/wAAAAACAAUAAADm/wEAAAACAAYAAADm/wIAAAACAAcAAADn//v/AAADAAAAAADn//z/AAADAAEAAADn//3/AAADAAIAAADn//7/AAADAAMAAADn////AAADAAQAAADn/wAAAAADAAUAAADn/wEAAAADAAYAAADn/wIAAAADAAcAAADo//v/AAAEAAAAAADo//z/AAAEAAEAAADo//3/AAAEAAIAAADo//7/AAAEAAMAAADo////AAAEAAQAAADo/wAAAAAEAAUAAADo/wEAAAAEAAYAAADo/wIAAAAEAAcAAADp//v/AAAFAAAAAADp//z/AAAFAAEAAADp//3/AAAFAAIAAADp//7/AAAFAAMAAADp////AAAFAAQAAADp/wAAAAAFAAUAAADp/wEAAAAFAAYAAADp/wIAAAAFAAcAAADq//v/AAAGAAAAAADq//z/AAAGAAEAAADq//3/AAAGAAIAAADq//7/AAAGAAMAAADq////AAAGAAQAAADq/wAAAAAGAAUAAADq/wEAAAAGAAYAAADq/wIAAAAGAAcAAADr//v/AAAHAAAAAADr//z/AAAHAAEAAADr//3/AAAHAAIAAADr//7/AAAHAAMAAADr////AAAHAAQAAADr/wAAAAAHAAUAAADr/wEAAAAHAAYAAADr/wIAAAAHAAcAAAD//+3/AAAAAAAAAAD//+7/AAAAAAEAAAD//+//AAAAAAIAAAD///D/AAAAAAMAAAD///H/AAAAAAQAAAD///L/AAAAAAUAAAD///P/AAAAAAYAAAD///T/AAAAAAcAAAAAAO3/AAABAAAAAAAAAO7/AAABAAEAAAAAAO//AAABAAIAAAAAAPD/AAABAAMAAAAAAPH/AAABAAQAAAAAAPL/AAABAAUAAAAAAPP/AAABAAYAAAAAAPT/AAABAAcAAAABAO3/AAACAAAAAAABAO7/AAACAAEAAAABAO//AAACAAIAAAABAPD/AAACAAMAAAABAPH/AAACAAQAAAABAPL/AAACAAUAAAABAPP/AAACAAYAAAABAPT/AAACAAcAAAACAO3/AAADAAAAAAACAO7/AAADAAEAAAACAO//AAADAAIAAAACAPD/AAADAAMAAAACAPH/AAADAAQAAAACAPL/AAADAAUAAAACAPP/AAADAAYAAAACAPT/AAADAAcAAAADAO3/AAAEAAAAAAADAO7/AAAEAAEAAAADAO//AAAEAAIAAAADAPD/AAAEAAMAAAADAPH/AAAEAAQAAAADAPL/AAAEAAUAAAADAPP/AAAEAAYAAAADAPT/AAAEAAcAAAAEAO3/AAAFAAAAAAAEAO7/AAAFAAEAAAAEAO//AAAFAAIAAAAEAPD/AAAFAAMAAAAEAPH/AAAFAAQAAAAEAPL/AAAFAAUAAAAEAPP/AAAFAAYAAAAEAPT/AAAFAAcAAAAFAO3/AAAGAAAAAAAFAO7/AAAGAAEAAAAFAO//AAAGAAIAAAAFAPD/AAAGAAMAAAAFAPH/AAAGAAQAAAAFAPL/AAAGAAUAAAAFAPP/AAAGAAYAAAAFAPT/AAAGAAcAAAAGAO3/AAAHAAAAAAAGAO7/AAAHAAEAAAAGAO//AAAHAAIAAAAGAPD/AAAHAAMAAAAGAPH/AAAHAAQAAAAGAPL/AAAHAAUAAAAGAPP/AAAHAAYAAAAGAPT/AAAHAAcAAAA=")
 tile_set = ExtResource("3_036b0")
 
 [node name="enemy" parent="." unique_id=1642175314 instance=ExtResource("3_tlwt5")]
-position = Vector2(273, -25)
+position = Vector2(400, 300)
 
 [node name="EnemySpawner" type="Node2D" parent="." unique_id=826041708]
 script = ExtResource("4_aqk2v")
 
 [node name="SpawnTimer" type="Timer" parent="EnemySpawner" unique_id=2133715108]
+
+[node name="ListFragment" parent="." instance=ExtResource("5_list_fragment")]
+position = Vector2(650, 65)
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1830655745]
 
@@ -31,7 +335,17 @@ offset_top = 20.0
 offset_right = 94.0
 offset_bottom = 54.0
 theme_override_font_sizes/font_size = 24
-text = "Kills: 0"
+text = "Find the stolen list fragment"
+
+[node name="ApproachLabel" type="Label" parent="UI"]
+offset_left = 500.0
+offset_top = 20.0
+offset_right = 780.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(0.82, 0.72, 0.48, 1)
+theme_override_font_sizes/font_size = 14
+text = "METHOD: DISCREET"
+horizontal_alignment = 2
 
 [node name="DashBar" type="ProgressBar" parent="UI" unique_id=1602266517]
 offset_left = 20.0
@@ -51,8 +365,11 @@ value = 3.0
 show_percentage = false
 
 [node name="MonocleFilter" type="ColorRect" parent="UI" unique_id=1945752822]
-offset_right = 800.0
-offset_bottom = 600.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0.5766823, 0.07139719, 0.63425225, 0)
 
 [node name="FocusBar" type="ProgressBar" parent="UI" unique_id=456114135]

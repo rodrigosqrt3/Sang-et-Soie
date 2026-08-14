@@ -6,6 +6,7 @@ var current_health: int = MAX_HEALTH
 
 const SPEED: float = 80.0          # Slower than normal melee enemy
 const STOP_DISTANCE: float = 280.0  # Distance where the enemy stops and shoots
+const DETECTION_RANGE: float = 420.0
 
 # Preload the projectile scene so we can spawn it
 const PROJECTILE_SCENE = preload("res://projectile.tscn")
@@ -25,6 +26,8 @@ const FLASH_COLOR = Color.WHITE
 
 func _ready() -> void:
 	add_to_group("enemies")
+	collision_layer = 1
+	collision_mask = 1
 	current_health = MAX_HEALTH
 	color_rect.color = NAVY_BLUE
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
@@ -48,6 +51,11 @@ func _physics_process(delta: float) -> void:
 		var player = players[0] as CharacterBody2D
 		var distance = global_position.distance_to(player.global_position)
 		var direction = global_position.direction_to(player.global_position)
+
+		if distance > DETECTION_RANGE:
+			velocity = Vector2.ZERO
+			move_and_slide()
+			return
 		
 		# If too far, walk towards the player. If close enough, stop to shoot!
 		if distance > STOP_DISTANCE:
@@ -65,7 +73,7 @@ func _on_shoot_timer_timeout() -> void:
 		var distance = global_position.distance_to(player.global_position)
 		
 		# Only shoot if the player is within range
-		if distance <= STOP_DISTANCE + 100.0:
+		if distance <= DETECTION_RANGE:
 			shoot_at_player(player)
 
 func shoot_at_player(player: CharacterBody2D) -> void:
@@ -109,6 +117,7 @@ func take_damage(amount: int) -> void:
 
 func die() -> void:
 	print(name, " defeated!")
+	Global.record_guard_defeat()
 	if get_parent().has_method("add_score"):
 		get_parent().add_score(1)
 	color_rect.visible = false

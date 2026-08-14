@@ -59,3 +59,20 @@ func trigger_trap() -> void:
 	# If someone is still standing on the trap after cooldown, trigger it again!
 	if overlapping_bodies.size() > 0:
 		trigger_trap()
+
+func _process(delta: float) -> void:
+	# If the trap is currently active/triggered, let the trigger_trap function handle the colors!
+	if is_triggered:
+		return
+		
+	# Find the player to check if they are using the Monocle (Le Regard)
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() > 0:
+		var player = players[0] as CharacterBody2D
+		
+		# If the player is actively using the monocle, smoothly lerp the color to gold!
+		if player.is_using_monocle:
+			color_rect.color = color_rect.color.lerp(Color(0.95, 0.76, 0.13), delta * 8.0)
+		else:
+			# Smoothly lerp back to the idle slate color
+			color_rect.color = color_rect.color.lerp(IDLE_COLOR, delta * 8.0)
