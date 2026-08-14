@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://distraction.gd" id="1_distraction"]
+
+[node name="Distraction" type="Node2D"]
+z_index = 3
+script = ExtResource("1_distraction")
+
+[node name="CoinVisual" type="ColorRect" parent="."]
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+color = Color(0.94, 0.72, 0.22, 1)
+
+[node name="NoiseRing" type="Line2D" parent="."]
+points = PackedVector2Array(18, 0, 16.63, 6.89, 12.73, 12.73, 6.89, 16.63, 0, 18, -6.89, 16.63, -12.73, 12.73, -16.63, 6.89, -18, 0, -16.63, -6.89, -12.73, -12.73, -6.89, -16.63, 0, -18, 6.89, -16.63, 12.73, -12.73, 16.63, -6.89, 18, 0)
+width = 2.0
+default_color = Color(0.95, 0.72, 0.25, 0.75)
+
+[node name="SoundLabel" type="Label" parent="."]
+offset_left = -35.0
+offset_top = -30.0
+offset_right = 35.0
+offset_bottom = -8.0
+theme_override_colors/font_color = Color(0.96, 0.78, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "clink"
+horizontal_alignment = 1

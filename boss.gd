@@ -11,8 +11,8 @@ var move_speed: float = 65.0
 var stop_distance: float = 300.0
 
 # Preload the projectile and the secret dossier
-const PROJECTILE_SCENE = preload("res://projectile.tscn")
-const DOSSIER_SCENE = preload("res://dossier.tscn")
+const PROJECTILE_SCENE: PackedScene = preload("res://projectile.tscn")
+const DOSSIER_SCENE: PackedScene = preload("res://dossier.tscn")
 
 # Knockback stats
 var knockback_velocity: Vector2 = Vector2.ZERO
@@ -51,11 +51,11 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 		
-	var players = get_tree().get_nodes_in_group("player")
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
-		var player = players[0] as CharacterBody2D
-		var distance = global_position.distance_to(player.global_position)
-		var direction = global_position.direction_to(player.global_position)
+		var player: CharacterBody2D = players[0] as CharacterBody2D
+		var distance: float = global_position.distance_to(player.global_position)
+		var direction: Vector2 = global_position.direction_to(player.global_position)
 		
 		if distance > stop_distance:
 			velocity = direction * move_speed
@@ -65,10 +65,10 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 
 func _on_shoot_timer_timeout() -> void:
-	var players = get_tree().get_nodes_in_group("player")
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
 	if players.size() > 0 and knockback_velocity.length() <= 10.0:
-		var player = players[0] as CharacterBody2D
-		var distance = global_position.distance_to(player.global_position)
+		var player: CharacterBody2D = players[0] as CharacterBody2D
+		var distance: float = global_position.distance_to(player.global_position)
 		if distance <= 480.0:
 			shoot_at_player(player)
 
@@ -85,10 +85,16 @@ func shoot_at_player(player: CharacterBody2D) -> void:
 		spawn_projectile(base_direction.rotated(0.38))
 
 func spawn_projectile(direction: Vector2) -> void:
-	var proj = PROJECTILE_SCENE.instantiate() as Area2D
-	proj.global_position = global_position + (direction * 35.0)
-	proj.direction = direction
-	get_parent().add_child(proj)
+	var projectile_node: Node = PROJECTILE_SCENE.instantiate()
+	if not projectile_node is Node2D:
+		push_error("The projectile scene must have a Node2D-compatible root.")
+		projectile_node.queue_free()
+		return
+
+	var projectile: Node2D = projectile_node as Node2D
+	projectile.position = position + direction * 35.0
+	projectile.set("direction", direction)
+	get_parent().add_child(projectile)
 
 func announce(text: String) -> void:
 	bark_label.text = text
@@ -128,15 +134,15 @@ func take_damage(amount: int) -> void:
 	elif current_health <= 4 and phase < 2:
 		enter_phase(2)
 	
-	var players = get_tree().get_nodes_in_group("player")
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
-		var player = players[0] as CharacterBody2D
+		var player: CharacterBody2D = players[0] as CharacterBody2D
 		if player.has_method("freeze_frame"):
 			player.freeze_frame(0.08)
 		if player.has_method("shake_camera"):
 			player.shake_camera(8.0, 6.0)
 			
-		var knockback_direction = (global_position - player.global_position).normalized()
+		var knockback_direction: Vector2 = (global_position - player.global_position).normalized()
 		knockback_velocity = knockback_direction * 650.0
 		
 	color_rect.color = FLASH_COLOR
@@ -160,9 +166,14 @@ func die() -> void:
 	print("The Captain has been defeated!")
 	
 	# Spawn the secret dossier exactly where the boss died!
-	var dossier_instance = DOSSIER_SCENE.instantiate() as Area2D
-	dossier_instance.global_position = global_position
-	get_parent().call_deferred("add_child", dossier_instance)
+	var dossier_node: Node = DOSSIER_SCENE.instantiate()
+	if dossier_node is Node2D:
+		var dossier_instance: Node2D = dossier_node as Node2D
+		dossier_instance.position = position
+		get_parent().call_deferred("add_child", dossier_instance)
+	else:
+		push_error("The dossier scene must have a Node2D-compatible root.")
+		dossier_node.queue_free()
 	
 	color_rect.visible = false
 	hurtbox.set_deferred("monitoring", false)

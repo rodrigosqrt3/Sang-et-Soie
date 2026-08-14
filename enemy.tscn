@@ -43,8 +43,26 @@ color = Color(0.7411765, 0.7647059, 0.78039217, 1)
 
 [node name="BarkLabel" type="Label" parent="." unique_id=1808355397]
 offset_left = -100.0
-offset_top = -40.0
+offset_top = -58.0
 offset_right = 100.0
-offset_bottom = -17.0
+offset_bottom = -35.0
 theme_override_font_sizes/font_size = 12
 horizontal_alignment = 1
+
+[node name="AwarenessLabel" type="Label" parent="."]
+offset_left = -18.0
+offset_top = -42.0
+offset_right = 18.0
+offset_bottom = -18.0
+theme_override_colors/font_color = Color(1, 0.82, 0.28, 1)
+theme_override_font_sizes/font_size = 18
+text = "?"
+horizontal_alignment = 1
+
+[node name="VisionPivot" type="Node2D" parent="."]
+show_behind_parent = true
+z_index = -1
+
+[node name="VisionCone" type="Polygon2D" parent="VisionPivot"]
+polygon = PackedVector2Array(0, 0, 190, -118, 280, 0, 190, 118)
+color = Color(0.75, 0.62, 0.25, 0.13)

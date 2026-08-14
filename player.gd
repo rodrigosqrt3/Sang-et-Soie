@@ -7,6 +7,9 @@ extends CharacterBody2D
 const SPEED: float = 300.0
 const DASH_SPEED: float = 1200.0
 const DASH_DURATION: float = 0.15
+const DISTRACTION_SCENE: PackedScene = preload("res://distraction.tscn")
+const MAX_DISTRACTION_CHARGES: int = 3
+const DISTRACTION_RANGE: float = 250.0
 
 # Player health stats
 const MAX_HEALTH: int = 3
@@ -28,6 +31,8 @@ var is_dashing: bool = false
 var is_attacking: bool = false
 var is_dead: bool = false
 var is_invulnerable: bool = false
+var distraction_charges: int = MAX_DISTRACTION_CHARGES
+var hiding_zone_count: int = 0
 
 # References to nodes
 @onready var attack_pivot: Node2D = $AttackPivot
@@ -76,6 +81,9 @@ func _physics_process(_delta: float) -> void:
 		# Trigger Attack
 		if Input.is_action_just_pressed("attack") and not is_attacking:
 			start_attack()
+
+		if Input.is_action_just_pressed("throw_distraction") and not is_attacking:
+			throw_distraction()
 			
 	# =========================================================
 	# NOVO CÓDIGO DO MONÓCULO (SLOW MOTION) ENTRA AQUI:
@@ -98,9 +106,44 @@ func _physics_process(_delta: float) -> void:
 		dust_particles.emitting = true
 	else:
 		dust_particles.emitting = false
+
+	update_concealment_visual()
 		
 	# 6. Apply all physical movement
 	move_and_slide()
+
+func throw_distraction() -> void:
+	if distraction_charges <= 0:
+		return
+
+	var target_position: Vector2 = get_global_mouse_position()
+	var offset: Vector2 = target_position - global_position
+	if offset.length() > DISTRACTION_RANGE:
+		target_position = global_position + offset.normalized() * DISTRACTION_RANGE
+
+	var distraction: Node2D = DISTRACTION_SCENE.instantiate() as Node2D
+	if distraction == null:
+		push_error("The distraction scene must have a Node2D-compatible root.")
+		return
+
+	distraction_charges -= 1
+	get_parent().add_child(distraction)
+	distraction.call("setup", global_position, target_position)
+
+func enter_hiding_zone() -> void:
+	hiding_zone_count += 1
+
+func exit_hiding_zone() -> void:
+	hiding_zone_count = maxi(0, hiding_zone_count - 1)
+
+func is_concealed() -> bool:
+	return hiding_zone_count > 0 and velocity.length() <= 35.0 and not is_attacking and not is_dashing
+
+func update_concealment_visual() -> void:
+	if is_concealed():
+		color_rect.modulate = Color(0.48, 0.62, 0.52, 0.72)
+	else:
+		color_rect.modulate = Color.WHITE
 
 func start_dash(dash_direction: Vector2) -> void:
 	is_dashing = true
