@@ -8,16 +8,17 @@ extends Node2D
 
 func _ready() -> void:
 	score_label.text = "THE CAPTAIN HOLDS THE COURIER'S LEDGER"
+	Global.position_player_at_pending_spawn(self)
 
 func _process(_delta: float) -> void:
-	var players = get_tree().get_nodes_in_group("player")
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
-		var player = players[0] as CharacterBody2D
+		var player: CharacterBody2D = players[0] as CharacterBody2D
 		
 		# Update HUD
 		health_bar.value = player.current_health
 		
-		var cooldown_pct = (Global.dash_cooldown - player.dash_cooldown_timer) / Global.dash_cooldown * 100.0
+		var cooldown_pct: float = (Global.dash_cooldown - player.dash_cooldown_timer) / Global.dash_cooldown * 100.0
 		dash_bar.value = cooldown_pct
 
 	var bosses: Array[Node] = get_tree().get_nodes_in_group("boss")

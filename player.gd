@@ -10,6 +10,7 @@ const DASH_DURATION: float = 0.15
 const DISTRACTION_SCENE: PackedScene = preload("res://distraction.tscn")
 const MAX_DISTRACTION_CHARGES: int = 3
 const DISTRACTION_RANGE: float = 250.0
+const SOCIAL_WALK_SPEED: float = 125.0
 
 # Player health stats
 const MAX_HEALTH: int = 3
@@ -33,6 +34,7 @@ var is_dead: bool = false
 var is_invulnerable: bool = false
 var distraction_charges: int = MAX_DISTRACTION_CHARGES
 var hiding_zone_count: int = 0
+var social_blend_count: int = 0
 
 # References to nodes
 @onready var attack_pivot: Node2D = $AttackPivot
@@ -70,7 +72,8 @@ func _physics_process(_delta: float) -> void:
 		
 	# 3. Standard 8-way movement
 	var direction: Vector2 = Input.get_vector("left", "right", "up", "down")
-	velocity = direction * SPEED
+	var movement_speed: float = SOCIAL_WALK_SPEED if social_blend_count > 0 else SPEED
+	velocity = direction * movement_speed
 	
 	# 4. Actions allowed ONLY in combat (Not safe mode)
 	if not is_safe_mode:
@@ -102,7 +105,7 @@ func _physics_process(_delta: float) -> void:
 	# =========================================================
 
 	# 5. Enable dust particles when running
-	if velocity.length() > 0.0 and not is_dashing and not is_safe_mode:
+	if velocity.length() > 0.0 and not is_dashing and not is_safe_mode and social_blend_count == 0:
 		dust_particles.emitting = true
 	else:
 		dust_particles.emitting = false
@@ -136,12 +139,30 @@ func enter_hiding_zone() -> void:
 func exit_hiding_zone() -> void:
 	hiding_zone_count = maxi(0, hiding_zone_count - 1)
 
+func enter_social_blend() -> void:
+	social_blend_count += 1
+
+func exit_social_blend() -> void:
+	social_blend_count = maxi(0, social_blend_count - 1)
+
 func is_concealed() -> bool:
-	return hiding_zone_count > 0 and velocity.length() <= 35.0 and not is_attacking and not is_dashing
+	var hidden_in_shadow: bool = hiding_zone_count > 0 and velocity.length() <= 35.0
+	var blended_with_crowd: bool = social_blend_count > 0 and velocity.length() <= SOCIAL_WALK_SPEED + 5.0
+	return (hidden_in_shadow or blended_with_crowd) and not is_attacking and not is_dashing
+
+func get_stealth_state() -> String:
+	if hiding_zone_count > 0 and velocity.length() <= 35.0 and not is_attacking and not is_dashing:
+		return "HIDDEN"
+	if social_blend_count > 0 and velocity.length() <= SOCIAL_WALK_SPEED + 5.0 and not is_attacking and not is_dashing:
+		return "BLENDED"
+	return "EXPOSED"
 
 func update_concealment_visual() -> void:
-	if is_concealed():
+	var stealth_state: String = get_stealth_state()
+	if stealth_state == "HIDDEN":
 		color_rect.modulate = Color(0.48, 0.62, 0.52, 0.72)
+	elif stealth_state == "BLENDED":
+		color_rect.modulate = Color(0.68, 0.72, 0.82, 0.82)
 	else:
 		color_rect.modulate = Color.WHITE
 

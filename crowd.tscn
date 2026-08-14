@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://crowd.gd" id="1_crowd"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blend"]
+size = Vector2(220, 110)
+
+[node name="Crowd" type="Node2D"]
+script = ExtResource("1_crowd")
+
+[node name="Figures" type="Node2D" parent="."]
+
+[node name="FigureA" type="Node2D" parent="Figures"]
+position = Vector2(-62, -9)
+
+[node name="Body" type="ColorRect" parent="Figures/FigureA"]
+offset_left = -12.0
+offset_top = -18.0
+offset_right = 12.0
+offset_bottom = 18.0
+color = Color(0.38, 0.16, 0.2, 1)
+
+[node name="FigureB" type="Node2D" parent="Figures"]
+position = Vector2(-34, 13)
+
+[node name="Body" type="ColorRect" parent="Figures/FigureB"]
+offset_left = -13.0
+offset_top = -20.0
+offset_right = 13.0
+offset_bottom = 20.0
+color = Color(0.18, 0.32, 0.34, 1)
+
+[node name="FigureC" type="Node2D" parent="Figures"]
+position = Vector2(-7, -12)
+
+[node name="Body" type="ColorRect" parent="Figures/FigureC"]
+offset_left = -12.0
+offset_top = -17.0
+offset_right = 12.0
+offset_bottom = 17.0
+color = Color(0.52, 0.36, 0.16, 1)
+
+[node name="FigureD" type="Node2D" parent="Figures"]
+position = Vector2(21, 12)
+
+[node name="Body" type="ColorRect" parent="Figures/FigureD"]
+offset_left = -13.0
+offset_top = -19.0
+offset_right = 13.0
+offset_bottom = 19.0
+color = Color(0.3, 0.22, 0.4, 1)
+
+[node name="FigureE" type="Node2D" parent="Figures"]
+position = Vector2(48, -11)
+
+[node name="Body" type="ColorRect" parent="Figures/FigureE"]
+offset_left = -12.0
+offset_top = -18.0
+offset_right = 12.0
+offset_bottom = 18.0
+color = Color(0.24, 0.38, 0.24, 1)
+
+[node name="FigureF" type="Node2D" parent="Figures"]
+position = Vector2(69, 14)
+
+[node name="Body" type="ColorRect" parent="Figures/FigureF"]
+offset_left = -11.0
+offset_top = -17.0
+offset_right = 11.0
+offset_bottom = 17.0
+color = Color(0.44, 0.24, 0.13, 1)
+
+[node name="BlendArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BlendArea"]
+shape = SubResource("RectangleShape2D_blend")

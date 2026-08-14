@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://dqtnpgsu840po" path="res://player.tscn" id="2_duw88"]
 [ext_resource type="TileSet" uid="uid://ek8ddh6mfcco" path="res://wall_tileset.tres" id="3_8jigc"]
 [ext_resource type="PackedScene" uid="uid://dgqtav46oa51k" path="res://boss.tscn" id="4_duw88"]
+[ext_resource type="PackedScene" path="res://district_passage.tscn" id="5_passage"]
+[ext_resource type="PackedScene" path="res://arrival_point.tscn" id="6_arrival"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_horizontal"]
 size = Vector2(800, 20)
@@ -51,6 +53,18 @@ offset_top = -1.0
 offset_right = 800.0
 offset_bottom = 599.0
 color = Color(0.05490196, 0.101960786, 0.05490196, 1)
+
+[node name="PalaisMaintenancePassage" parent="." instance=ExtResource("5_passage")]
+position = Vector2(80, 90)
+destination_scene = "res://world.tscn"
+destination_spawn_id = "palais_shortcut"
+shortcut_id = "palais_sewer_passage"
+unlock_shortcut_on_use = true
+prompt_text = "Open the hatch to the Palais-Royal"
+
+[node name="ArrivalFromPalais" parent="." instance=ExtResource("6_arrival")]
+position = Vector2(145, 90)
+spawn_id = "maintenance_ladder"
 
 [node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("2_duw88")]
 position = Vector2(80, 300)

@@ -1,0 +1,267 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://palais_sector.gd" id="1_sector"]
+[ext_resource type="PackedScene" path="res://player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://enemy.tscn" id="3_guard"]
+[ext_resource type="PackedScene" path="res://crowd.tscn" id="4_crowd"]
+[ext_resource type="PackedScene" path="res://hiding_zone.tscn" id="5_hiding"]
+[ext_resource type="PackedScene" path="res://district_passage.tscn" id="6_passage"]
+[ext_resource type="PackedScene" path="res://arrival_point.tscn" id="7_arrival"]
+
+[sub_resource type="RectangleShape2D" id="WallHorizontal"]
+size = Vector2(1000, 20)
+
+[sub_resource type="RectangleShape2D" id="WallVertical"]
+size = Vector2(20, 700)
+
+[sub_resource type="RectangleShape2D" id="CounterShape"]
+size = Vector2(190, 34)
+
+[sub_resource type="RectangleShape2D" id="ColumnShape"]
+size = Vector2(28, 150)
+
+[sub_resource type="RectangleShape2D" id="TableShape"]
+size = Vector2(92, 54)
+
+[node name="PalaisWestArcade" type="Node2D"]
+script = ExtResource("1_sector")
+sector_id = "west"
+sector_title = "PALAIS-ROYAL  ·  WESTERN ARCADE"
+
+[node name="Ground" type="ColorRect" parent="."]
+z_index = -10
+offset_right = 1000.0
+offset_bottom = 700.0
+color = Color(0.19, 0.17, 0.15, 1)
+
+[node name="GalleryFloor" type="ColorRect" parent="."]
+z_index = -9
+offset_left = 55.0
+offset_top = 105.0
+offset_right = 945.0
+offset_bottom = 595.0
+color = Color(0.31, 0.285, 0.245, 1)
+
+[node name="CentralRunner" type="ColorRect" parent="."]
+z_index = -8
+offset_left = 80.0
+offset_top = 318.0
+offset_right = 920.0
+offset_bottom = 382.0
+color = Color(0.38, 0.09, 0.105, 0.82)
+
+[node name="BoundaryTop" type="StaticBody2D" parent="."]
+position = Vector2(500, 0)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryTop"]
+shape = SubResource("WallHorizontal")
+
+[node name="BoundaryBottom" type="StaticBody2D" parent="."]
+position = Vector2(500, 700)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryBottom"]
+shape = SubResource("WallHorizontal")
+
+[node name="BoundaryLeft" type="StaticBody2D" parent="."]
+position = Vector2(0, 350)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryLeft"]
+shape = SubResource("WallVertical")
+
+[node name="BoundaryRight" type="StaticBody2D" parent="."]
+position = Vector2(1000, 350)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryRight"]
+shape = SubResource("WallVertical")
+
+[node name="SilkCounter" type="StaticBody2D" parent="."]
+position = Vector2(235, 118)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="SilkCounter"]
+offset_left = -95.0
+offset_top = -17.0
+offset_right = 95.0
+offset_bottom = 17.0
+color = Color(0.33, 0.12, 0.17, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SilkCounter"]
+shape = SubResource("CounterShape")
+
+[node name="BookCounter" type="StaticBody2D" parent="."]
+position = Vector2(750, 118)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="BookCounter"]
+offset_left = -95.0
+offset_top = -17.0
+offset_right = 95.0
+offset_bottom = 17.0
+color = Color(0.16, 0.19, 0.26, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BookCounter"]
+shape = SubResource("CounterShape")
+
+[node name="ColumnWest" type="StaticBody2D" parent="."]
+position = Vector2(500, 205)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnWest"]
+offset_left = -14.0
+offset_top = -75.0
+offset_right = 14.0
+offset_bottom = 75.0
+color = Color(0.62, 0.58, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnWest"]
+shape = SubResource("ColumnShape")
+
+[node name="ColumnEast" type="StaticBody2D" parent="."]
+position = Vector2(500, 495)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="ColumnEast"]
+offset_left = -14.0
+offset_top = -75.0
+offset_right = 14.0
+offset_bottom = 75.0
+color = Color(0.62, 0.58, 0.49, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnEast"]
+shape = SubResource("ColumnShape")
+
+[node name="CardTable" type="StaticBody2D" parent="."]
+position = Vector2(240, 540)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Visual" type="ColorRect" parent="CardTable"]
+offset_left = -46.0
+offset_top = -27.0
+offset_right = 46.0
+offset_bottom = 27.0
+color = Color(0.12, 0.29, 0.18, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CardTable"]
+shape = SubResource("TableShape")
+
+[node name="GalleryCrowd" parent="." instance=ExtResource("4_crowd")]
+position = Vector2(330, 345)
+roam_extents = Vector2(125, 45)
+movement_speed = 25.0
+
+[node name="SalonCrowd" parent="." instance=ExtResource("4_crowd")]
+position = Vector2(720, 475)
+roam_extents = Vector2(120, 52)
+movement_speed = 21.0
+pause_min = 1.1
+pause_max = 3.2
+
+[node name="CounterShadow" parent="." instance=ExtResource("5_hiding")]
+position = Vector2(245, 170)
+
+[node name="CurtainShadow" parent="." instance=ExtResource("5_hiding")]
+position = Vector2(810, 585)
+
+[node name="ReturnToGarden" parent="." instance=ExtResource("6_passage")]
+position = Vector2(965, 350)
+destination_scene = "res://world.tscn"
+destination_spawn_id = "central_west"
+prompt_text = "Return to the central garden"
+cipher_mark_text = "J"
+
+[node name="CoveredPassage" parent="." instance=ExtResource("6_passage")]
+position = Vector2(500, 40)
+destination_scene = "res://palais_east_arcade.tscn"
+destination_spawn_id = "covered_passage"
+prompt_text = "Cross the covered passage"
+reveal_mark_with_monocle = true
+cipher_mark_text = "II"
+
+[node name="ArrivalFromGarden" parent="." instance=ExtResource("7_arrival")]
+position = Vector2(900, 350)
+spawn_id = "east_gate"
+
+[node name="ArrivalFromEast" parent="." instance=ExtResource("7_arrival")]
+position = Vector2(500, 105)
+spawn_id = "covered_passage"
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("2_player")]
+position = Vector2(900, 350)
+
+[node name="GuardGallery" parent="." instance=ExtResource("3_guard")]
+position = Vector2(150, 170)
+
+[node name="GuardSalon" parent="." instance=ExtResource("3_guard")]
+position = Vector2(620, 500)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ScoreLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 520.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 20
+
+[node name="ApproachLabel" type="Label" parent="UI"]
+offset_left = 500.0
+offset_top = 20.0
+offset_right = 780.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(0.82, 0.72, 0.48, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 2
+
+[node name="DashBar" type="ProgressBar" parent="UI"]
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 140.0
+offset_bottom = 77.0
+value = 100.0
+show_percentage = false
+
+[node name="HealthBar" type="ProgressBar" parent="UI"]
+offset_left = 20.0
+offset_top = 95.0
+offset_right = 140.0
+offset_bottom = 110.0
+max_value = 3.0
+value = 3.0
+show_percentage = false
+
+[node name="FocusBar" type="ProgressBar" parent="UI"]
+offset_left = 20.0
+offset_top = 110.0
+offset_right = 140.0
+offset_bottom = 120.0
+show_percentage = false
+
+[node name="StealthToolsLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 128.0
+offset_right = 260.0
+offset_bottom = 152.0
+theme_override_colors/font_color = Color(0.72, 0.68, 0.58, 1)
+theme_override_font_sizes/font_size = 13
+
+[node name="MonocleFilter" type="ColorRect" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.5766823, 0.07139719, 0.63425225, 0)

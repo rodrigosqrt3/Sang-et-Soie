@@ -77,10 +77,19 @@ func spawn_enemy() -> void:
 	else:
 		enemy_instance = ENEMY_SCENE.instantiate() as CharacterBody2D
 		
+	enemy_instance.set("persistent_guard", false)
 	enemy_instance.global_position = spawn_position
 	get_parent().add_child(enemy_instance)
 	var center_direction: Vector2 = spawn_position.direction_to(Vector2(400, 300))
 	if enemy_instance.has_method("set_patrol_direction"):
 		enemy_instance.call("set_patrol_direction", center_direction)
+	if enemy_instance.has_method("apply_district_alert"):
+		var players: Array[Node] = get_tree().get_nodes_in_group("player")
+		var search_origin: Vector2 = Vector2(400, 300)
+		if not players.is_empty():
+			var player: Node2D = players[0] as Node2D
+			if player != null:
+				search_origin = player.global_position
+		enemy_instance.call("apply_district_alert", maxi(1, Global.palais_global_alert), search_origin)
 	
 	print("New enemy spawned: ", enemy_instance.name, " at ", enemy_instance.global_position)

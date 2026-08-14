@@ -131,6 +131,7 @@ position = Vector2(400, 350)
 is_safe_mode = true
 
 [node name="Marguerite" type="Area2D" parent="." unique_id=412663169]
+position = Vector2(220, 380)
 script = ExtResource("2_522iv")
 
 [node name="ColorRect" type="ColorRect" parent="Marguerite" unique_id=1390265490]

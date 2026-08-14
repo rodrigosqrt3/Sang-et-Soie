@@ -14,6 +14,7 @@ enum Awareness {
 @export var detection_range: float = 280.0
 @export var vision_half_angle_degrees: float = 52.0
 @export var hearing_range: float = 250.0
+@export var persistent_guard: bool = true
 
 const ATTACK_RANGE: float = 75.0
 const ATTACK_COOLDOWN: float = 2.0
@@ -188,7 +189,7 @@ func can_see_player(player: CharacterBody2D) -> bool:
 
 	# Shadows break recognition at a distance, but not if a guard walks directly
 	# into Étienne. Movement or combat also cancels concealment on the player side.
-	if distance > 55.0 and player.has_method("is_concealed"):
+	if awareness != Awareness.ALERT and distance > 55.0 and player.has_method("is_concealed"):
 		var concealed: bool = bool(player.call("is_concealed"))
 		if concealed:
 			return false
@@ -321,6 +322,21 @@ func receive_alert(alert_position: Vector2) -> void:
 	suspicion = maxf(suspicion, 0.35)
 	show_awareness("?")
 
+func apply_district_alert(alert_level: int, search_origin: Vector2) -> void:
+	if is_dead or alert_level <= 0:
+		return
+	last_known_position = search_origin
+	awareness = Awareness.SEARCHING
+	if alert_level >= 2:
+		suspicion = maxf(suspicion, 0.72)
+		search_timer = SEARCH_DURATION + 5.0
+		show_awareness("!")
+	else:
+		suspicion = maxf(suspicion, 0.28)
+		search_timer = SEARCH_DURATION + 1.5
+		show_awareness("?")
+	face_toward(search_origin)
+
 func hear_distraction(noise_position: Vector2) -> void:
 	if is_dead or awareness == Awareness.ALERT:
 		return
@@ -401,8 +417,11 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
-	Global.record_guard_defeat()
 	var level: Node = get_parent()
+	if persistent_guard and level.has_method("register_guard_defeat"):
+		level.call("register_guard_defeat", str(name))
+	else:
+		Global.record_guard_defeat()
 	if level.has_method("add_score"):
 		level.call("add_score", 1)
 	color_rect.visible = false

@@ -86,6 +86,7 @@ func _on_button_a_pressed() -> void:
 		Global.smuggler_debt += 1
 		Global.smuggler_trust += 1
 		Global.current_quest = "enter_streets"
+		Global.begin_palais_excursion()
 		Global.save_game()
 		hub.show_dialogue("The Belgian Smuggler", "'Good. Debts survive longer than men. Use the gold door and look for red wax.'")
 		await get_tree().create_timer(4.0).timeout
@@ -103,6 +104,7 @@ func _on_button_b_pressed() -> void:
 		Global.smuggler_trust -= 1
 		Global.exposure += 2
 		Global.current_quest = "enter_streets"
+		Global.begin_palais_excursion()
 		Global.save_game()
 		hub.show_dialogue("The Belgian Smuggler", "'That cane frightens clerks and children. I am neither. The page is in the arcades. Go make your noise somewhere else.'")
 		await get_tree().create_timer(4.0).timeout

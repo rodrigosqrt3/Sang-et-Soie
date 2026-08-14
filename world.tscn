@@ -5,8 +5,10 @@
 [ext_resource type="TileSet" uid="uid://ek8ddh6mfcco" path="res://wall_tileset.tres" id="3_036b0"]
 [ext_resource type="PackedScene" uid="uid://cvpnqx4lfaogd" path="res://enemy.tscn" id="3_tlwt5"]
 [ext_resource type="Script" uid="uid://b60d2yjjgmcqt" path="res://enemy_spawner.gd" id="4_aqk2v"]
-[ext_resource type="PackedScene" path="res://list_fragment.tscn" id="5_list_fragment"]
 [ext_resource type="PackedScene" path="res://hiding_zone.tscn" id="6_hiding_zone"]
+[ext_resource type="PackedScene" path="res://crowd.tscn" id="7_crowd"]
+[ext_resource type="PackedScene" path="res://district_passage.tscn" id="8_passage"]
+[ext_resource type="PackedScene" path="res://arrival_point.tscn" id="9_arrival"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_horizontal"]
 size = Vector2(800, 20)
@@ -259,6 +261,57 @@ rotation = 1.5708
 [node name="ShadowRight" parent="." instance=ExtResource("6_hiding_zone")]
 position = Vector2(695, 430)
 
+[node name="GardenCrowdNorth" parent="." instance=ExtResource("7_crowd")]
+position = Vector2(400, 240)
+roam_extents = Vector2(92, 38)
+movement_speed = 22.0
+
+[node name="GardenCrowdSouth" parent="." instance=ExtResource("7_crowd")]
+position = Vector2(400, 385)
+roam_extents = Vector2(86, 36)
+movement_speed = 19.0
+pause_min = 1.0
+pause_max = 3.0
+
+[node name="WestArcadePassage" parent="." instance=ExtResource("8_passage")]
+position = Vector2(28, 300)
+destination_scene = "res://palais_west_arcade.tscn"
+destination_spawn_id = "east_gate"
+prompt_text = "Enter the western arcade"
+reveal_mark_with_monocle = true
+cipher_mark_text = "I"
+
+[node name="EastArcadePassage" parent="." instance=ExtResource("8_passage")]
+position = Vector2(772, 300)
+destination_scene = "res://palais_east_arcade.tscn"
+destination_spawn_id = "west_gate"
+prompt_text = "Enter the eastern arcade"
+reveal_mark_with_monocle = true
+cipher_mark_text = "III"
+
+[node name="ArrivalFromWestArcade" parent="." instance=ExtResource("9_arrival")]
+position = Vector2(85, 300)
+spawn_id = "central_west"
+
+[node name="ArrivalFromEastArcade" parent="." instance=ExtResource("9_arrival")]
+position = Vector2(715, 300)
+spawn_id = "central_east"
+
+[node name="SewerShortcut" parent="." instance=ExtResource("8_passage")]
+position = Vector2(758, 72)
+destination_scene = "res://sewers.tscn"
+destination_spawn_id = "maintenance_ladder"
+shortcut_id = "palais_sewer_passage"
+requires_unlocked_shortcut = true
+prompt_text = "Descend to the maintenance tunnel"
+locked_text = "The iron hatch is barred from below"
+reveal_mark_with_monocle = true
+cipher_mark_text = "V·V"
+
+[node name="ArrivalFromSewers" parent="." instance=ExtResource("9_arrival")]
+position = Vector2(750, 160)
+spawn_id = "palais_shortcut"
+
 [node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("1_f3sb7")]
 position = Vector2(80, 520)
 
@@ -282,9 +335,6 @@ position = Vector2(630, 180)
 script = ExtResource("4_aqk2v")
 
 [node name="SpawnTimer" type="Timer" parent="EnemySpawner" unique_id=2133715108]
-
-[node name="ListFragment" parent="." instance=ExtResource("5_list_fragment")]
-position = Vector2(650, 65)
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1830655745]
 
