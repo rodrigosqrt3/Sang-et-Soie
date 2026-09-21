@@ -1,6 +1,10 @@
 extends Area2D
 
 var is_player_nearby: bool = false
+var shop_offer_a: String = ""
+var shop_offer_b: String = ""
+
+const UPGRADE_COST: int = 5
 
 @onready var hub: Node2D = get_parent()
 
@@ -29,16 +33,8 @@ func update_shop_prompt() -> void:
 		hub.show_dialogue("The Belgian Smuggler", "[E] Discuss the recovered fragment")
 	elif Global.current_quest == "campaign_complete":
 		hub.show_dialogue("The Belgian Smuggler", "[E] Ask about Théodore's cipher")
-	# If there is at least one upgrade left to buy
-	elif Global.dash_cooldown == 1.0 or Global.focus_drain_rate == 60.0 or Global.weapon_scale == Vector2(1.0, 1.0):
-		var item_name = ""
-		if Global.dash_cooldown == 1.0:
-			item_name = "Silk Cravat (5 Francs)"
-		elif Global.focus_drain_rate == 60.0:
-			item_name = "Monocle Polish (7 Francs)"
-		else:
-			item_name = "Weighted Cane (10 Francs)"
-		hub.show_dialogue("The Belgian Smuggler", "[E] Buy " + item_name + " | Wallet: " + str(Global.francs) + " Francs")
+	elif not get_available_upgrades().is_empty():
+		hub.show_dialogue("The Belgian Smuggler", "[E] Browse alterations | Wallet: " + str(Global.francs) + " Francs")
 	else:
 		hub.show_dialogue("The Belgian Smuggler", "'I have nothing else for you, Étienne. Be careful.'\nWallet: " + str(Global.francs) + " Francs")
 
@@ -54,7 +50,7 @@ func handle_interaction() -> void:
 			self
 		)
 	elif Global.current_quest == "report_fragment":
-		var return_text: String = "You found it. The five francs belonged to the courier. The paper is worth considerably more."
+		var return_text: String = "You found it. The ten francs belonged to the courier. The paper is worth considerably more."
 		if Global.fragment_recovered_without_killing:
 			return_text += " No bodies? Perhaps the coat is not entirely decorative."
 		else:
@@ -98,6 +94,8 @@ func _on_button_a_pressed() -> void:
 		hub.show_dialogue("The Belgian Smuggler", "'Good. A secret shown to one man is already gossip. Marguerite Colbert knows the gate used by the old escape network. Ask her what remains beneath this house.'")
 		await get_tree().create_timer(4.0).timeout
 		if is_player_nearby: update_shop_prompt()
+	elif not shop_offer_a.is_empty():
+		purchase_upgrade(shop_offer_a)
 
 func _on_button_b_pressed() -> void:
 	if Global.current_quest == "talk_to_smuggler":
@@ -118,63 +116,85 @@ func _on_button_b_pressed() -> void:
 		hub.show_dialogue("The Belgian Smuggler", "'Vauclaire. So your ghost has a family. I will remember that you trusted me. Speak to Marguerite; her dead Madame once used a gate beneath this house.'")
 		await get_tree().create_timer(4.0).timeout
 		if is_player_nearby: update_shop_prompt()
+	elif not shop_offer_b.is_empty():
+		purchase_upgrade(shop_offer_b)
+	else:
+		hub.hide_dialogue()
 
 func open_shop() -> void:
-	# Upgrade 1: Silk Cravat (Cost: 5 Francs)
-	if Global.dash_cooldown == 1.0:
-		if Global.francs >= 5:
-			Global.francs -= 5
-			Global.dash_cooldown = 0.6 # Permanently upgrade dash cooldown!
-			Global.save_game()
-			hub.show_dialogue(
-				"The Belgian Smuggler", 
-				"Smuggler: 'Ah, pure silk. Elegant and fast, Étienne. Excellent choice.'\n(Dash Cooldown permanently upgraded to 0.6s!)"
-			)
-			await get_tree().create_timer(3.0).timeout
-			if is_player_nearby: update_shop_prompt()
-		else:
-			hub.show_dialogue(
-				"The Belgian Smuggler", 
-				"Smuggler: 'You don't have 5 Francs, Étienne. Come back later.'\nWallet: " + str(Global.francs) + " Francs"
-			)
-			
-	# Upgrade 2: Monocle Polish (Cost: 7 Francs)
-	elif Global.focus_drain_rate == 60.0:
-		if Global.francs >= 7:
-			Global.francs -= 7
-			Global.focus_drain_rate = 35.0 # Drains focus almost twice as slow!
-			Global.save_game()
-			hub.show_dialogue(
-				"The Belgian Smuggler", 
-				"Smuggler: 'Ah, a finely polished lorgnette. Your gaze is sharper now, Étienne.'\n(Monocle focus drain permanently reduced to 35!)"
-			)
-			await get_tree().create_timer(3.0).timeout
-			if is_player_nearby: update_shop_prompt()
-		else:
-			hub.show_dialogue(
-				"The Belgian Smuggler", 
-				"Smuggler: 'You don't have 7 Francs, Étienne. Come back later.'\nWallet: " + str(Global.francs) + " Francs"
-			)
-			
-	# Upgrade 3: Weighted Cane (Cost: 10 Francs)
-	elif Global.weapon_scale == Vector2(1.0, 1.0):
-		if Global.francs >= 10:
-			Global.francs -= 10
-			Global.weapon_scale = Vector2(1.4, 1.4) # Permanently increase weapon size by 40%!
-			
-			var players = get_tree().get_nodes_in_group("player")
-			if players.size() > 0:
-				players[0].attack_pivot.scale = Global.weapon_scale
-				
-			Global.save_game()
-			hub.show_dialogue(
-				"The Belgian Smuggler", 
-				"Smuggler: 'Lead-weighted enegreciated oak. Brutal.'\n(Weapon Size permanently upgraded by 40%!)"
-			)
-			await get_tree().create_timer(3.0).timeout
-			if is_player_nearby: update_shop_prompt()
-		else:
-			hub.show_dialogue(
-				"The Belgian Smuggler", 
-				"Smuggler: 'You don't have 10 Francs, Étienne. Come back later.'\nWallet: " + str(Global.francs) + " Francs"
-			)
+	var available_upgrades: Array[String] = get_available_upgrades()
+	if available_upgrades.is_empty():
+		shop_offer_a = ""
+		shop_offer_b = ""
+		hub.show_dialogue(
+			"The Belgian Smuggler",
+			"'Nothing else tonight, Étienne. Even decadence has an inventory.'\nWallet: " + str(Global.francs) + " Francs"
+		)
+		return
+
+	shop_offer_a = available_upgrades[0]
+	shop_offer_b = available_upgrades[1] if available_upgrades.size() > 1 else ""
+	hub.show_dialogue(
+		"The Belgian Smuggler",
+		"Choose what kind of survivor you intend to be. Each alteration costs " + str(UPGRADE_COST) + " francs.\nWallet: " + str(Global.francs) + " Francs"
+	)
+	var option_b_text: String = get_upgrade_name(shop_offer_b) if not shop_offer_b.is_empty() else "Not tonight."
+	hub.show_choices(get_upgrade_name(shop_offer_a), option_b_text, self)
+
+func get_available_upgrades() -> Array[String]:
+	var upgrades: Array[String] = []
+	if Global.dash_cooldown >= 1.0:
+		upgrades.append("dash")
+	if Global.focus_drain_rate >= 60.0:
+		upgrades.append("focus")
+	if Global.weapon_scale == Vector2(1.0, 1.0):
+		upgrades.append("cane")
+	return upgrades
+
+func get_upgrade_name(upgrade_id: String) -> String:
+	match upgrade_id:
+		"dash":
+			return "Silk Cravat — quicker recovery (5 F)"
+		"focus":
+			return "Monocle Polish — longer Regard (5 F)"
+		"cane":
+			return "Weighted Cane — broader strike (5 F)"
+	return "Not tonight."
+
+func purchase_upgrade(upgrade_id: String) -> void:
+	if Global.francs < UPGRADE_COST:
+		hub.show_dialogue(
+			"The Belgian Smuggler",
+			"'Taste is expensive. Return when your purse agrees.'\nWallet: " + str(Global.francs) + " Francs"
+		)
+		return
+
+	Global.francs -= UPGRADE_COST
+	var result_text: String = ""
+	match upgrade_id:
+		"dash":
+			Global.dash_cooldown = 0.6
+			result_text = "The silk settles around your throat. Movement feels less costly."
+		"focus":
+			Global.focus_drain_rate = 35.0
+			result_text = "The polished lens catches details that previously escaped you."
+		"cane":
+			Global.weapon_scale = Vector2(1.4, 1.4)
+			result_text = "Lead shifts inside the cane. Elegance acquires weight."
+			var players: Array[Node] = get_tree().get_nodes_in_group("player")
+			if not players.is_empty():
+				var player: Node = players[0]
+				var attack_pivot_node: Node2D = player.get_node_or_null("AttackPivot") as Node2D
+				if attack_pivot_node != null:
+					attack_pivot_node.scale = Global.weapon_scale
+		_:
+			Global.francs += UPGRADE_COST
+			return
+
+	shop_offer_a = ""
+	shop_offer_b = ""
+	Global.save_game()
+	hub.show_dialogue(
+		"The Belgian Smuggler",
+		result_text + "\nWallet: " + str(Global.francs) + " Francs"
+	)

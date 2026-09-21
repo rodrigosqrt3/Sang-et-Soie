@@ -19,6 +19,7 @@ var transition_in_progress: bool = false
 @onready var cipher_mark: Label = $CipherMark
 
 func _ready() -> void:
+	add_to_group("district_passages")
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	prompt_label.visible = false

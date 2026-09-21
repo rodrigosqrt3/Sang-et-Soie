@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://fiua5j4uaumy" path="res://sewers.gd" id="1_u40lh"]
 [ext_resource type="PackedScene" uid="uid://dqtnpgsu840po" path="res://player.tscn" id="2_duw88"]
-[ext_resource type="TileSet" uid="uid://ek8ddh6mfcco" path="res://wall_tileset.tres" id="3_8jigc"]
 [ext_resource type="PackedScene" uid="uid://dgqtav46oa51k" path="res://boss.tscn" id="4_duw88"]
 [ext_resource type="PackedScene" path="res://district_passage.tscn" id="5_passage"]
 [ext_resource type="PackedScene" path="res://arrival_point.tscn" id="6_arrival"]
@@ -54,23 +53,18 @@ offset_right = 800.0
 offset_bottom = 599.0
 color = Color(0.05490196, 0.101960786, 0.05490196, 1)
 
-[node name="PalaisMaintenancePassage" parent="." instance=ExtResource("5_passage")]
-position = Vector2(80, 90)
-destination_scene = "res://world.tscn"
-destination_spawn_id = "palais_shortcut"
-shortcut_id = "palais_sewer_passage"
-unlock_shortcut_on_use = true
-prompt_text = "Open the hatch to the Palais-Royal"
+[node name="CisternReturnPassage" parent="." instance=ExtResource("5_passage")]
+position = Vector2(42, 300)
+destination_scene = "res://sewer_cistern.tscn"
+destination_spawn_id = "boss_gate"
+prompt_text = "Return to the cistern"
 
-[node name="ArrivalFromPalais" parent="." instance=ExtResource("6_arrival")]
-position = Vector2(145, 90)
-spawn_id = "maintenance_ladder"
+[node name="ArrivalFromCistern" parent="." instance=ExtResource("6_arrival")]
+position = Vector2(115, 300)
+spawn_id = "boss_entry"
 
 [node name="CharacterBody2D" parent="." unique_id=1755139071 instance=ExtResource("2_duw88")]
-position = Vector2(80, 300)
-
-[node name="WallMap" type="TileMapLayer" parent="." unique_id=243966396]
-tile_set = ExtResource("3_8jigc")
+position = Vector2(115, 300)
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1183554145]
 
@@ -98,6 +92,30 @@ offset_bottom = 110.0
 max_value = 3.0
 value = 3.0
 show_percentage = false
+
+[node name="FocusBar" type="ProgressBar" parent="UI"]
+offset_left = 20.0
+offset_top = 112.0
+offset_right = 140.0
+offset_bottom = 122.0
+show_percentage = false
+
+[node name="ToolsLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 132.0
+offset_right = 330.0
+offset_bottom = 156.0
+theme_override_colors/font_color = Color(0.58, 0.72, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+
+[node name="MonocleFilter" type="ColorRect" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.22, 0.5, 0.42, 0)
 
 [node name="BossLabel" type="Label" parent="UI"]
 offset_left = 550.0

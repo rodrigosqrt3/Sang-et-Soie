@@ -299,7 +299,7 @@ spawn_id = "central_east"
 
 [node name="SewerShortcut" parent="." instance=ExtResource("8_passage")]
 position = Vector2(758, 72)
-destination_scene = "res://sewers.tscn"
+destination_scene = "res://sewer_maintenance.tscn"
 destination_spawn_id = "maintenance_ladder"
 shortcut_id = "palais_sewer_passage"
 requires_unlocked_shortcut = true

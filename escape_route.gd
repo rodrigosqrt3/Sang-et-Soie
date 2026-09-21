@@ -10,13 +10,14 @@ func _on_body_entered(body: Node2D) -> void:
 		Global.runs_completed += 1
 		
 		if Global.current_quest == "enter_streets" and Global.has_list_fragment:
-			# The courier's envelope contains five francs. The reward comes from
+			# The courier's envelope contains ten francs. The reward comes from
 			# recovering information, never from killing guards.
-			Global.francs += 5
+			Global.francs += 10
 			if Global.fragment_recovered_without_killing:
 				Global.smuggler_trust += 1
 			Global.current_quest = "report_fragment"
 			
 		Global.save_game()
-		
+		Global.reset_active_run_state()
+		Global.save_game()
 		get_tree().change_scene_to_file.call_deferred("res://bal_des_victimes.tscn")

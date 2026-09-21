@@ -5,18 +5,15 @@ extends Area2D
 
 var elapsed_time: float = 0.0
 var is_player_nearby: bool = false
-const GLOW_SPEED: float = 12.0 # Frequency of the gold glow
+const GLOW_SPEED: float = 12.0
 
 func _ready() -> void:
 	prompt_label.visible = false
 	prompt_label.text = "[E] Pick up Key"
-	
-	# Connect physics signals
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
 func _process(delta: float) -> void:
-	# CHANGE: ONLY show and activate the key if we are on the "grab_key" step!
 	if Global.current_quest == "grab_key":
 		visible = true
 		monitoring = true
@@ -25,13 +22,10 @@ func _process(delta: float) -> void:
 		visible = false
 		monitoring = false
 		monitorable = false
-		return # Stop executing process if the key shouldn't exist yet
-		
-	# 2. Smoothly pulse opacity (glowing gold effect) using sine wave
+		return
+
 	elapsed_time += delta
-	color_rect.color.a = 0.4 + (sin(elapsed_time * GLOW_SPEED) + 1.0) / 2.0 * 0.6
-	
-	# 3. Handle collection input
+	color_rect.color.a = 0.4 + (sin(elapsed_time * GLOW_SPEED) + 1.0) * 0.3
 	if is_player_nearby and Input.is_action_just_pressed("interact"):
 		collect_key()
 
@@ -46,16 +40,15 @@ func _on_body_exited(body: Node2D) -> void:
 		prompt_label.visible = false
 
 func collect_key() -> void:
-	print("Sewer key collected!")
-	# Advance quest state to complete the chapter!
 	Global.current_quest = "chapter_complete"
-	
-	# Trigger a beautiful gold flash effect directly on the player
-	var players = get_tree().get_nodes_in_group("player")
-	if players.size() > 0:
-		var player = players[0] as CharacterBody2D
-		player.color_rect.color = Color(0.8, 0.6, 0.0) # Gold flash
-		await get_tree().create_timer(0.15).timeout
-		player.color_rect.color = player.EMERALD_GREEN
-		
-	queue_free() # Destroys the key node
+	Global.save_game()
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
+	if not players.is_empty():
+		var player: CharacterBody2D = players[0] as CharacterBody2D
+		if player != null:
+			var player_visual: ColorRect = player.get_node_or_null("ColorRect") as ColorRect
+			if player_visual != null:
+				player_visual.color = Color(0.8, 0.6, 0.0)
+				await get_tree().create_timer(0.15).timeout
+				player_visual.color = Color(0.14, 0.45, 0.23)
+	queue_free()

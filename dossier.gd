@@ -28,15 +28,18 @@ func collect_dossier() -> void:
 	
 	Global.theodore_knows_about_lists = true
 	Global.current_quest = "campaign_complete"
+	Global.reset_active_run_state()
 	Global.save_game()
 	
 	# Trigger a beautiful gold flash effect on the player to celebrate
-	var players = get_tree().get_nodes_in_group("player")
-	if players.size() > 0:
-		var player = players[0] as CharacterBody2D
-		player.color_rect.color = Color(0.8, 0.6, 0.0) # Gold flash
-		await get_tree().create_timer(0.2).timeout
-		player.color_rect.color = player.EMERALD_GREEN
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
+	if not players.is_empty():
+		var player: CharacterBody2D = players[0] as CharacterBody2D
+		var player_visual: ColorRect = player.get_node_or_null("ColorRect") as ColorRect
+		if player_visual != null:
+			player_visual.color = Color(0.8, 0.6, 0.0)
+			await get_tree().create_timer(0.2).timeout
+			player_visual.color = Color(0.14, 0.45, 0.23)
 		
 	# Return to the Bal, where the chapter revelation is displayed.
 	get_tree().change_scene_to_file.call_deferred("res://bal_des_victimes.tscn")

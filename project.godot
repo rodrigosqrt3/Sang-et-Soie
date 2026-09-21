@@ -11,9 +11,18 @@ config_version=5
 [application]
 
 config/name="SangEtSoie"
-run/main_scene="uid://dqtnpgsu840po"
+run/main_scene="uid://cynrh77vf24da"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=800
+window/size/viewport_height=600
+window/size/window_width_override=800
+window/size/window_height_override=600
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
 
 [autoload]
 

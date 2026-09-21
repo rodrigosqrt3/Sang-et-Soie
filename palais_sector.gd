@@ -29,6 +29,7 @@ const EAST_FRAGMENT_SPOTS: Array[Vector2] = [
 ]
 
 var fragment_collected_here: bool = false
+var discovery_message_timer: float = 0.0
 
 @onready var score_label: Label = $UI/ScoreLabel
 @onready var dash_bar: ProgressBar = $UI/DashBar
@@ -36,6 +37,7 @@ var fragment_collected_here: bool = false
 @onready var approach_label: Label = $UI/ApproachLabel
 @onready var stealth_tools_label: Label = $UI/StealthToolsLabel
 @onready var list_fragment: Area2D = get_node_or_null("ListFragment") as Area2D
+@onready var discovery_label: Label = get_node_or_null("UI/DiscoveryLabel") as Label
 
 func _ready() -> void:
 	Global.register_palais_sector_visit(sector_id)
@@ -45,6 +47,8 @@ func _ready() -> void:
 	Global.position_player_at_pending_spawn(self)
 	configure_camera_limits()
 	apply_sector_memory()
+	if discovery_label != null:
+		discovery_label.visible = false
 	update_score_ui()
 
 func restore_defeated_guards() -> void:
@@ -123,7 +127,7 @@ func configure_fragment() -> void:
 		and not Global.has_list_fragment
 	)
 	if fragment_active:
-		var spot_index: int = randi_range(0, EAST_FRAGMENT_SPOTS.size() - 1)
+		var spot_index: int = Global.choose_palais_fragment_spot(EAST_FRAGMENT_SPOTS.size())
 		list_fragment.position = EAST_FRAGMENT_SPOTS[spot_index]
 	else:
 		list_fragment.visible = false
@@ -143,6 +147,13 @@ func register_guard_defeat(guard_id: String) -> void:
 	set_local_crowds_disturbed(true)
 	update_score_ui()
 
+func register_secret_discovery(_shortcut_id: String) -> void:
+	if discovery_label != null:
+		discovery_label.text = "SECRET ROUTE DISCOVERED  ·  THE COVERED PASSAGE IS OPEN"
+		discovery_label.visible = true
+		discovery_message_timer = 4.5
+	update_score_ui()
+
 func collect_list_fragment() -> void:
 	if fragment_collected_here or Global.has_list_fragment:
 		return
@@ -160,6 +171,8 @@ func update_score_ui() -> void:
 		score_label.text = "FRAGMENT SECURED. RETURN TO THE WESTERN GRATE.  |  Violence: " + str(Global.palais_run_violence) + alert_suffix
 	elif contains_fragment:
 		score_label.text = sector_title + "  |  Search for the courier's red wax" + alert_suffix
+	elif Global.is_shortcut_unlocked("palais_covered_passage"):
+		score_label.text = sector_title + "  |  Secret passage mapped. Reach the eastern arcade" + alert_suffix
 	else:
 		score_label.text = sector_title + "  |  Find a route into the eastern arcade" + alert_suffix
 
@@ -182,6 +195,11 @@ func get_alert_suffix() -> String:
 	return ""
 
 func _process(delta: float) -> void:
+	if discovery_message_timer > 0.0:
+		discovery_message_timer = maxf(0.0, discovery_message_timer - delta)
+		if discovery_message_timer <= 0.0 and discovery_label != null:
+			discovery_label.visible = false
+
 	var players: Array[Node] = get_tree().get_nodes_in_group("player")
 	if players.is_empty():
 		return

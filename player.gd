@@ -59,6 +59,12 @@ func _ready() -> void:
 	
 	# Connect the player's Hurtbox signal to detect incoming enemy attacks
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
+	Global.restore_player_run_state(self)
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0
+	if not is_dead:
+		Global.capture_player_run_state(self)
 
 func _physics_process(_delta: float) -> void:
 	# 1. Decay the dash cooldown timer
@@ -199,7 +205,7 @@ func start_attack() -> void:
 	attack_area.monitoring = true
 	
 	# Create a parallel Tween to animate both rotation and opacity at the same time
-	var tween = create_tween().set_parallel(true)
+	var tween: Tween = create_tween().set_parallel(true)
 	# Sweep the weapon in a 120-degree arc (from -60 to +60 degrees relative to base angle)
 	tween.tween_property(attack_pivot, "rotation", base_angle + deg_to_rad(60.0), 0.15)
 	# Smoothly fade out the weapon's opacity during the swing
@@ -282,7 +288,7 @@ func heal(amount: int) -> void:
 # Spawns a temporary, fading ghost effect at the player's current position
 func spawn_ghost_effect() -> void:
 	# Create a temporary ColorRect programmatically
-	var ghost = ColorRect.new()
+	var ghost: ColorRect = ColorRect.new()
 	ghost.size = color_rect.size
 	# Center it at the player's exact global position
 	ghost.global_position = global_position - (color_rect.size / 2.0)
@@ -293,7 +299,7 @@ func spawn_ghost_effect() -> void:
 	get_parent().add_child(ghost)
 	
 	# Create a beautiful Tween to animate the opacity fadeout
-	var tween = create_tween()
+	var tween: Tween = create_tween()
 	# Smoothly reduce the alpha channel of the color to 0.0 over 0.25 seconds
 	tween.tween_property(ghost, "color:a", 0.0, 0.25)
 	# Automatically delete the ghost node from memory when the animation finishes!

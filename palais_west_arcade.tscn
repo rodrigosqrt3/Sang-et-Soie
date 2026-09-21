@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://hiding_zone.tscn" id="5_hiding"]
 [ext_resource type="PackedScene" path="res://district_passage.tscn" id="6_passage"]
 [ext_resource type="PackedScene" path="res://arrival_point.tscn" id="7_arrival"]
+[ext_resource type="PackedScene" path="res://secret_mark.tscn" id="8_secret"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1000, 20)
@@ -175,6 +176,13 @@ position = Vector2(245, 170)
 [node name="CurtainShadow" parent="." instance=ExtResource("5_hiding")]
 position = Vector2(810, 585)
 
+[node name="CoveredPassageMark" parent="." instance=ExtResource("8_secret")]
+position = Vector2(115, 585)
+shortcut_id = "palais_covered_passage"
+cipher_text = "II"
+reveal_prompt = "[E] Decipher the scratched arcade plan"
+discovered_text = "COVERED PASSAGE MAPPED"
+
 [node name="ReturnToGarden" parent="." instance=ExtResource("6_passage")]
 position = Vector2(965, 350)
 destination_scene = "res://world.tscn"
@@ -186,7 +194,10 @@ cipher_mark_text = "J"
 position = Vector2(500, 40)
 destination_scene = "res://palais_east_arcade.tscn"
 destination_spawn_id = "covered_passage"
+shortcut_id = "palais_covered_passage"
+requires_unlocked_shortcut = true
 prompt_text = "Cross the covered passage"
+locked_text = "The concealed latch has no visible release"
 reveal_mark_with_monocle = true
 cipher_mark_text = "II"
 
@@ -256,6 +267,16 @@ offset_right = 260.0
 offset_bottom = 152.0
 theme_override_colors/font_color = Color(0.72, 0.68, 0.58, 1)
 theme_override_font_sizes/font_size = 13
+
+[node name="DiscoveryLabel" type="Label" parent="UI"]
+offset_left = 170.0
+offset_top = 555.0
+offset_right = 830.0
+offset_bottom = 590.0
+theme_override_colors/font_color = Color(0.66, 0.91, 0.96, 1)
+theme_override_font_sizes/font_size = 16
+text = "SECRET ROUTE DISCOVERED"
+horizontal_alignment = 1
 
 [node name="MonocleFilter" type="ColorRect" parent="UI"]
 anchors_preset = 15

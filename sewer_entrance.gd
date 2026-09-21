@@ -9,20 +9,20 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 func _process(_delta: float) -> void:
-	# If player is near and presses E
-	if is_player_nearby and Input.is_action_just_pressed("interact"):
-		if Global.current_quest == "chapter_complete":
-			print("Entering the sewers...")
-			# Defer changing scene to our new sewers level safely
-			get_tree().change_scene_to_file.call_deferred("res://sewers.tscn")
-		else:
-			prompt_label.text = "Locked sewer gate. I need the key."
+	if not is_player_nearby or not Input.is_action_just_pressed("interact"):
+		return
+	if Global.current_quest == "chapter_complete":
+		Global.begin_active_run()
+		Global.save_game()
+		get_tree().change_scene_to_file.call_deferred("res://sewer_maintenance.tscn")
+	else:
+		prompt_label.text = "Locked sewer gate. I need the key."
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		is_player_nearby = true
 		if Global.current_quest == "chapter_complete":
-			prompt_label.text = "[E] Enter the Sewers"
+			prompt_label.text = "[E] Enter the maintenance tunnels"
 		else:
 			prompt_label.text = "Locked sewer gate"
 		prompt_label.visible = true

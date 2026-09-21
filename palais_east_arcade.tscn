@@ -199,7 +199,10 @@ cipher_mark_text = "J"
 position = Vector2(500, 40)
 destination_scene = "res://palais_west_arcade.tscn"
 destination_spawn_id = "covered_passage"
+shortcut_id = "palais_covered_passage"
+requires_unlocked_shortcut = true
 prompt_text = "Cross to the western arcade"
+locked_text = "A concealed mechanism bars the northern gallery"
 reveal_mark_with_monocle = true
 cipher_mark_text = "II"
 

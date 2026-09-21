@@ -26,6 +26,15 @@ var palais_run_violence: int = 0
 var palais_run_detected: bool = false
 var palais_global_alert: int = 0
 var palais_sector_states: Dictionary = {}
+var palais_fragment_spot_index: int = -1
+
+# Volatile state for the player during a single excursion. Every district scene
+# creates a fresh Player node, so these values carry injuries and spent tools
+# across room transitions without making them permanent upgrades.
+var active_run: bool = false
+var run_health: int = 3
+var run_focus: float = 100.0
+var run_distraction_charges: int = 3
 
 const PALAIS_SECTOR_NEIGHBORS: Dictionary = {
 	"garden": ["west", "east"],
@@ -43,7 +52,7 @@ var current_quest: String = "talk_to_smuggler"
 
 # OS-independent safe path for save data
 const SAVE_PATH = "user://save_game.cfg"
-const DEVELOPMENT_MODE: bool = true
+const DEVELOPMENT_MODE: bool = false
 
 func _ready() -> void:
 	if DEVELOPMENT_MODE:
@@ -72,6 +81,8 @@ func reset_progress() -> void:
 	palais_run_detected = false
 	palais_global_alert = 0
 	palais_sector_states.clear()
+	palais_fragment_spot_index = -1
+	reset_active_run_state()
 	dash_cooldown = 1.0
 	weapon_scale = Vector2(1.0, 1.0)
 	focus_drain_rate = 60.0
@@ -88,8 +99,44 @@ func begin_palais_excursion() -> void:
 	palais_run_detected = false
 	palais_global_alert = 0
 	palais_sector_states.clear()
+	palais_fragment_spot_index = -1
 	has_list_fragment = false
 	fragment_recovered_without_killing = false
+	begin_active_run()
+
+func begin_active_run() -> void:
+	active_run = true
+	run_health = 3
+	run_focus = 100.0
+	run_distraction_charges = 3
+
+func reset_active_run_state() -> void:
+	active_run = false
+	run_health = 3
+	run_focus = 100.0
+	run_distraction_charges = 3
+
+func capture_player_run_state(player: Node) -> void:
+	if not active_run or player == null or bool(player.get("is_safe_mode")):
+		return
+	run_health = clampi(int(player.get("current_health")), 0, 3)
+	run_focus = clampf(float(player.get("current_focus")), 0.0, 100.0)
+	run_distraction_charges = clampi(int(player.get("distraction_charges")), 0, 3)
+
+func restore_player_run_state(player: Node) -> void:
+	if not active_run or player == null or bool(player.get("is_safe_mode")):
+		return
+	player.set("current_health", run_health)
+	player.set("current_focus", run_focus)
+	player.set("distraction_charges", run_distraction_charges)
+
+func choose_palais_fragment_spot(spot_count: int) -> int:
+	if spot_count <= 0:
+		return 0
+	if palais_fragment_spot_index < 0 or palais_fragment_spot_index >= spot_count:
+		palais_fragment_spot_index = randi_range(0, spot_count - 1)
+		save_game()
+	return palais_fragment_spot_index
 
 func ensure_palais_sector_state(sector_id: String) -> Dictionary:
 	if not palais_sector_states.has(sector_id):
@@ -171,6 +218,8 @@ func record_failed_run() -> void:
 		palais_run_detected = false
 		palais_global_alert = 0
 		palais_sector_states.clear()
+		palais_fragment_spot_index = -1
+	reset_active_run_state()
 	save_game()
 
 func unlock_shortcut(shortcut_id: String) -> void:
@@ -189,7 +238,11 @@ func travel_to_scene(destination_scene: String, spawn_id: String) -> void:
 	if destination_scene.is_empty():
 		push_error("A district passage has no destination scene.")
 		return
+	var players: Array[Node] = get_tree().get_nodes_in_group("player")
+	if not players.is_empty():
+		capture_player_run_state(players[0])
 	pending_spawn_id = spawn_id
+	save_game()
 	get_tree().change_scene_to_file.call_deferred(destination_scene)
 
 func position_player_at_pending_spawn(scene_root: Node) -> void:
@@ -223,7 +276,7 @@ func save_game() -> void:
 	if DEVELOPMENT_MODE:
 		return
 
-	var config = ConfigFile.new()
+	var config: ConfigFile = ConfigFile.new()
 	
 	# Save variables into sections and keys inside the .cfg file
 	config.set_value("progression", "runs_completed", runs_completed)
@@ -242,21 +295,26 @@ func save_game() -> void:
 	config.set_value("navigation", "palais_run_detected", palais_run_detected)
 	config.set_value("navigation", "palais_global_alert", palais_global_alert)
 	config.set_value("navigation", "palais_sector_states", palais_sector_states)
+	config.set_value("navigation", "palais_fragment_spot_index", palais_fragment_spot_index)
+	config.set_value("run", "active", active_run)
+	config.set_value("run", "health", run_health)
+	config.set_value("run", "focus", run_focus)
+	config.set_value("run", "distraction_charges", run_distraction_charges)
 	
 	config.set_value("upgrades", "dash_cooldown", dash_cooldown)
 	config.set_value("upgrades", "weapon_scale", weapon_scale)
 	config.set_value("upgrades", "focus_drain_rate", focus_drain_rate) # NEW: Save focus upgrade
 	
 	# Write the file to disk
-	var err = config.save(SAVE_PATH)
+	var err: Error = config.save(SAVE_PATH)
 	if err == OK:
 		print("Game saved successfully to: ", SAVE_PATH)
 	else:
 		print("Error saving game: ", err)
 
 func load_game() -> void:
-	var config = ConfigFile.new()
-	var err = config.load(SAVE_PATH)
+	var config: ConfigFile = ConfigFile.new()
+	var err: Error = config.load(SAVE_PATH)
 	
 	# If the save file exists, read and restore all variables on startup
 	if err == OK:
@@ -280,6 +338,11 @@ func load_game() -> void:
 		palais_run_detected = bool(config.get_value("navigation", "palais_run_detected", false))
 		palais_global_alert = int(config.get_value("navigation", "palais_global_alert", 0))
 		palais_sector_states = config.get_value("navigation", "palais_sector_states", {}) as Dictionary
+		palais_fragment_spot_index = int(config.get_value("navigation", "palais_fragment_spot_index", -1))
+		active_run = bool(config.get_value("run", "active", false))
+		run_health = int(config.get_value("run", "health", 3))
+		run_focus = float(config.get_value("run", "focus", 100.0))
+		run_distraction_charges = int(config.get_value("run", "distraction_charges", 3))
 		
 		dash_cooldown = config.get_value("upgrades", "dash_cooldown", 1.0)
 		weapon_scale = config.get_value("upgrades", "weapon_scale", Vector2(1.0, 1.0))
