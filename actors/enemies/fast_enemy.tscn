@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://c4tkcf4afwdvu"]
+
+[ext_resource type="Script" uid="uid://ck3b5b063kh4p" path="res://actors/enemies/enemy.gd" id="1_qckmv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7xaro"]
+size = Vector2(30, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7k104"]
+size = Vector2(34, 34)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4gyqm"]
+size = Vector2(34, 34)
+
+[node name="FastEnemy" type="CharacterBody2D" unique_id=1642175314]
+script = ExtResource("1_qckmv")
+max_health = 1
+speed = 240.0
+default_color = Color(0.9019608, 0.49411765, 0.13333334, 1)
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1987456172]
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+color = Color(0.6392157, 0.015686275, 0.08235294, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2035057253]
+shape = SubResource("RectangleShape2D_7xaro")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=368258637]
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hurtbox" unique_id=50202206]
+shape = SubResource("RectangleShape2D_7k104")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=600228597]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1678979965]
+shape = SubResource("RectangleShape2D_4gyqm")
+
+[node name="BarkLabel" type="Label" parent="." unique_id=1808355397]
+offset_left = -100.0
+offset_top = -55.0
+offset_right = 100.0
+offset_bottom = -32.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="AwarenessLabel" type="Label" parent="."]
+offset_left = -18.0
+offset_top = -37.0
+offset_right = 18.0
+offset_bottom = -13.0
+theme_override_colors/font_color = Color(1, 0.82, 0.28, 1)
+theme_override_font_sizes/font_size = 18
+text = "?"
+horizontal_alignment = 1
+
+[node name="VisionPivot" type="Node2D" parent="."]
+show_behind_parent = true
+z_index = -1
+
+[node name="VisionCone" type="Polygon2D" parent="VisionPivot"]
+polygon = PackedVector2Array(0, 0, 190, -118, 280, 0, 190, 118)
+color = Color(0.75, 0.62, 0.25, 0.13)

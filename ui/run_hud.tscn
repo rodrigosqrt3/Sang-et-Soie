@@ -1,0 +1,97 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/run_hud.gd" id="1_hud"]
+
+[node name="RunHUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="MonocleFilter" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.18, 0.46, 0.38, 0)
+
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 580.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(0.83, 0.72, 0.53, 1)
+theme_override_font_sizes/font_size = 19
+
+[node name="ObjectiveLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 43.0
+offset_right = 760.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(0.82, 0.81, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = 20.0
+offset_top = 76.0
+offset_right = 150.0
+offset_bottom = 89.0
+max_value = 3.0
+value = 3.0
+show_percentage = false
+
+[node name="DashBar" type="ProgressBar" parent="."]
+offset_left = 20.0
+offset_top = 94.0
+offset_right = 150.0
+offset_bottom = 104.0
+value = 100.0
+show_percentage = false
+
+[node name="FocusBar" type="ProgressBar" parent="."]
+offset_left = 20.0
+offset_top = 109.0
+offset_right = 150.0
+offset_bottom = 119.0
+value = 100.0
+show_percentage = false
+
+[node name="ToolsLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 124.0
+offset_right = 340.0
+offset_bottom = 146.0
+theme_override_colors/font_color = Color(0.61, 0.73, 0.67, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="ConsequenceLabel" type="Label" parent="."]
+offset_left = 520.0
+offset_top = 18.0
+offset_right = 780.0
+offset_bottom = 42.0
+theme_override_colors/font_color = Color(0.72, 0.5, 0.42, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 2
+
+[node name="MessagePanel" type="ColorRect" parent="."]
+offset_left = 85.0
+offset_top = 470.0
+offset_right = 715.0
+offset_bottom = 580.0
+color = Color(0.055, 0.045, 0.04, 0.96)
+
+[node name="SpeakerLabel" type="Label" parent="MessagePanel"]
+offset_left = 18.0
+offset_top = 12.0
+offset_right = 610.0
+offset_bottom = 35.0
+theme_override_colors/font_color = Color(0.9, 0.71, 0.43, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="MessageLabel" type="Label" parent="MessagePanel"]
+offset_left = 18.0
+offset_top = 40.0
+offset_right = 610.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(0.88, 0.84, 0.73, 1)
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 2

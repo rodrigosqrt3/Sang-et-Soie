@@ -26,7 +26,7 @@ window/stretch/aspect="keep"
 
 [autoload]
 
-Global="*res://global.gd"
+Global="*res://autoload/global.gd"
 
 [input]
 

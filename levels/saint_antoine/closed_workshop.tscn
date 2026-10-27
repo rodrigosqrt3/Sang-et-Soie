@@ -1,0 +1,131 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://levels/saint_antoine/saint_antoine_sector.gd" id="1_sector"]
+[ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://actors/enemies/enemy.tscn" id="3_guard"]
+[ext_resource type="PackedScene" path="res://objects/props/crate.tscn" id="4_crate"]
+[ext_resource type="PackedScene" path="res://objects/props/hiding_zone.tscn" id="5_shadow"]
+[ext_resource type="PackedScene" path="res://objects/interactables/district_passage.tscn" id="6_passage"]
+[ext_resource type="PackedScene" path="res://objects/interactables/arrival_point.tscn" id="7_arrival"]
+[ext_resource type="PackedScene" path="res://ui/run_hud.tscn" id="8_hud"]
+[ext_resource type="PackedScene" path="res://objects/interactables/story_interactable.tscn" id="9_story"]
+
+[sub_resource type="RectangleShape2D" id="WallHorizontal"]
+size = Vector2(1000, 20)
+[sub_resource type="RectangleShape2D" id="WallVertical"]
+size = Vector2(20, 700)
+[sub_resource type="RectangleShape2D" id="BenchShape"]
+size = Vector2(210, 70)
+[sub_resource type="RectangleShape2D" id="ShelfShape"]
+size = Vector2(54, 230)
+
+[node name="ClosedWorkshop" type="Node2D"]
+script = ExtResource("1_sector")
+sector_id = "workshop"
+room_size = Vector2i(1000, 700)
+
+[node name="Ground" type="ColorRect" parent="."]
+z_index = -10
+offset_right = 1000.0
+offset_bottom = 700.0
+color = Color(0.12, 0.095, 0.07, 1)
+[node name="DustFloor" type="ColorRect" parent="."]
+z_index = -9
+offset_left = 45.0
+offset_top = 55.0
+offset_right = 955.0
+offset_bottom = 645.0
+color = Color(0.25, 0.2, 0.14, 1)
+
+[node name="BoundaryTop" type="StaticBody2D" parent="."]
+position = Vector2(500, 0)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryTop"]
+shape = SubResource("WallHorizontal")
+[node name="BoundaryBottom" type="StaticBody2D" parent="."]
+position = Vector2(500, 700)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryBottom"]
+shape = SubResource("WallHorizontal")
+[node name="BoundaryLeft" type="StaticBody2D" parent="."]
+position = Vector2(0, 350)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryLeft"]
+shape = SubResource("WallVertical")
+[node name="BoundaryRight" type="StaticBody2D" parent="."]
+position = Vector2(1000, 350)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryRight"]
+shape = SubResource("WallVertical")
+
+[node name="WorkbenchNorth" type="StaticBody2D" parent="."]
+position = Vector2(360, 190)
+[node name="Visual" type="ColorRect" parent="WorkbenchNorth"]
+offset_left = -105.0
+offset_top = -35.0
+offset_right = 105.0
+offset_bottom = 35.0
+color = Color(0.32, 0.18, 0.09, 1)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorkbenchNorth"]
+shape = SubResource("BenchShape")
+[node name="WorkbenchSouth" type="StaticBody2D" parent="."]
+position = Vector2(650, 510)
+[node name="Visual" type="ColorRect" parent="WorkbenchSouth"]
+offset_left = -105.0
+offset_top = -35.0
+offset_right = 105.0
+offset_bottom = 35.0
+color = Color(0.29, 0.15, 0.08, 1)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorkbenchSouth"]
+shape = SubResource("BenchShape")
+[node name="Shelf" type="StaticBody2D" parent="."]
+position = Vector2(530, 350)
+[node name="Visual" type="ColorRect" parent="Shelf"]
+offset_left = -27.0
+offset_top = -115.0
+offset_right = 27.0
+offset_bottom = 115.0
+color = Color(0.2, 0.12, 0.07, 1)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shelf"]
+shape = SubResource("ShelfShape")
+
+[node name="CrateA" parent="." instance=ExtResource("4_crate")]
+position = Vector2(170, 540)
+[node name="CrateB" parent="." instance=ExtResource("4_crate")]
+position = Vector2(210, 540)
+[node name="ShutterShadow" parent="." instance=ExtResource("5_shadow")]
+position = Vector2(750, 120)
+rotation = 1.5708
+
+[node name="PrintersRoute" parent="." instance=ExtResource("9_story")]
+position = Vector2(770, 510)
+event_id = "workshop_proof"
+speaker_name = "Étienne"
+message_text = "Fresh lampblack. A reversed V cut into the type case — Théodore's childhood cipher. The missing sorts spell an address behind the dyers' court. He was here tonight."
+prompt_text = "Examine the hidden type case"
+required_quest = "search_closed_workshop"
+
+[node name="GuardWorkshopA" parent="." instance=ExtResource("3_guard")]
+position = Vector2(170, 180)
+[node name="GuardWorkshopB" parent="." instance=ExtResource("3_guard")]
+position = Vector2(650, 170)
+
+[node name="StreetPassage" parent="." instance=ExtResource("6_passage")]
+position = Vector2(40, 350)
+destination_scene = "res://levels/saint_antoine/faubourg_street.tscn"
+destination_spawn_id = "workshop_return"
+prompt_text = "Return to the artisans' street"
+[node name="PrintshopPassage" parent="." instance=ExtResource("6_passage")]
+position = Vector2(960, 350)
+destination_scene = "res://levels/saint_antoine/hidden_printshop.tscn"
+destination_spawn_id = "workshop_entry"
+prompt_text = "Follow the ink-stained passage"
+reveal_mark_with_monocle = true
+cipher_mark_text = "V"
+
+[node name="ArrivalFromStreet" parent="." instance=ExtResource("7_arrival")]
+position = Vector2(100, 350)
+spawn_id = "street_entry"
+[node name="ArrivalFromPrintshop" parent="." instance=ExtResource("7_arrival")]
+position = Vector2(900, 350)
+spawn_id = "printshop_return"
+[node name="CharacterBody2D" parent="." instance=ExtResource("2_player")]
+position = Vector2(100, 350)
+[node name="RunHUD" parent="." instance=ExtResource("8_hud")]
+area_title = "SAINT-ANTOINE  ·  THE SHUTTERED WORKSHOP"

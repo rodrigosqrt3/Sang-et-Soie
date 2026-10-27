@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://objects/interactables/story_interactable.gd" id="1_story"]
+
+[sub_resource type="RectangleShape2D" id="InteractionShape"]
+size = Vector2(70, 70)
+
+[node name="StoryInteractable" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_story")
+
+[node name="Visual" type="ColorRect" parent="."]
+offset_left = -18.0
+offset_top = -18.0
+offset_right = 18.0
+offset_bottom = 18.0
+color = Color(0.58, 0.4, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("InteractionShape")
+
+[node name="PromptLabel" type="Label" parent="."]
+z_index = 5
+offset_left = -170.0
+offset_top = -54.0
+offset_right = 170.0
+offset_bottom = -28.0
+theme_override_colors/font_color = Color(0.94, 0.77, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
