@@ -16,9 +16,7 @@ func _process(_delta: float) -> void:
 		prompt_label.text = "The raid blocks every quiet exit. A decision remains inside."
 		return
 	Global.current_quest = Global.QUEST_CHAPTER_TWO_COMPLETE
-	Global.runs_completed += 1
-	Global.reset_active_run_state()
-	Global.save_game()
+	Global.complete_excursion()
 	Global.transition_to_scene.call_deferred("res://levels/hub/bal_des_victimes.tscn")
 
 func _on_body_entered(body: Node2D) -> void:

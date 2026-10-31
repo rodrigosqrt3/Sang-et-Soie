@@ -12,6 +12,7 @@ extends Area2D
 
 var is_player_nearby: bool = false
 var transition_in_progress: bool = false
+var art: PropArt
 
 @onready var prompt_label: Label = $PromptLabel
 @onready var gate_visual: ColorRect = $GateVisual
@@ -20,6 +21,10 @@ var transition_in_progress: bool = false
 
 func _ready() -> void:
 	add_to_group("district_passages")
+	gate_visual.visible = false
+	$Lintel.visible = false
+	art = PropArt.attach(self, "passage")
+	move_child(art, 0)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	prompt_label.visible = false
@@ -49,6 +54,8 @@ func is_locked() -> bool:
 func refresh_state() -> void:
 	var locked: bool = is_locked()
 	gate_collision.set_deferred("disabled", not locked)
+	if art != null:
+		art.state = "locked" if locked else ""
 	if locked:
 		gate_visual.color = Color(0.22, 0.18, 0.16, 1.0)
 	else:

@@ -7,6 +7,8 @@ const DROP_CHANCE: float = 0.30
 
 func _ready() -> void:
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
+	$ColorRect.visible = false
+	PropArt.attach(self, "crate")
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "AttackArea":
