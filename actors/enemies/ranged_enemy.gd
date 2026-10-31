@@ -12,6 +12,7 @@ func _ready() -> void:
 	default_color = Color(0.16, 0.50, 0.72)
 	detection_range = 390.0
 	vision_half_angle_degrees = 38.0
+	guard_kind = "ranged"
 	super()
 	shoot_timer.one_shot = true
 	shoot_timer.start(0.8)
@@ -37,17 +38,17 @@ func shoot_at_player(player: CharacterBody2D) -> void:
 	velocity = Vector2.ZERO
 	show_awareness("!")
 	shout_dialogue("Stand where you are!")
-	color_rect.color = Color(0.45, 0.72, 1.0)
+	set_tint(Color(0.55, 0.8, 1.0), 0.5)
 	await get_tree().create_timer(0.35).timeout
 	if is_dead or awareness != Awareness.ALERT:
-		color_rect.color = default_color
+		set_tint(Color.WHITE, 0.0)
 		return
 
 	var projectile_node: Node = PROJECTILE_SCENE.instantiate()
 	if not projectile_node is Node2D:
 		push_error("The projectile scene must have a Node2D-compatible root.")
 		projectile_node.queue_free()
-		color_rect.color = default_color
+		set_tint(Color.WHITE, 0.0)
 		return
 
 	var projectile: Node2D = projectile_node as Node2D
@@ -55,4 +56,4 @@ func shoot_at_player(player: CharacterBody2D) -> void:
 	projectile.position = position + direction * 25.0
 	projectile.set("direction", direction)
 	get_parent().add_child(projectile)
-	color_rect.color = default_color
+	set_tint(Color.WHITE, 0.0)

@@ -15,8 +15,13 @@ enum Awareness {
 @export var vision_half_angle_degrees: float = 52.0
 @export var hearing_range: float = 250.0
 @export var persistent_guard: bool = true
+# "melee", "fast" or "ranged". Empty: inferred from the guard's speed.
+@export var guard_kind: String = ""
 
 const ATTACK_RANGE: float = 75.0
+# Half the player's hurtbox. Hitbox offset + hitbox half-size + this must cover
+# ATTACK_RANGE, or a guard can commit to a swing that physically cannot land.
+const PLAYER_HURTBOX_HALF: float = 21.0
 const ATTACK_COOLDOWN: float = 2.0
 const KNOCKBACK_DECAY: float = 15.0
 const SUSPICION_GAIN: float = 1.35
@@ -39,6 +44,9 @@ var patrol_change_timer: float = 0.0
 var patrol_wait_timer: float = 0.0
 var attack_cooldown_timer: float = 0.0
 var bark_timer: float = 0.0
+var bark_token: int = 0
+var attack_reach_offset: float = 34.0
+var killed_by_player: bool = true
 var is_attacking: bool = false
 var is_dead: bool = false
 var has_reported_detection: bool = false
@@ -57,13 +65,17 @@ var patrol_route_index: int = 0
 @onready var vision_pivot: Node2D = get_node_or_null("VisionPivot") as Node2D
 @onready var vision_cone: Polygon2D = get_node_or_null("VisionPivot/VisionCone") as Polygon2D
 
+var figure: PaperFigure
+
 func _ready() -> void:
 	add_to_group("enemies")
 	collision_layer = 1
 	collision_mask = 1
 	current_health = max_health
 	color_rect.color = default_color
+	color_rect.visible = false
 	ensure_awareness_visuals()
+	build_figure()
 	hitbox.visible = false
 	hitbox.monitoring = false
 	hitbox.monitorable = false
@@ -71,7 +83,28 @@ func _ready() -> void:
 	awareness_label.visible = false
 	vision_cone.visible = false
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
+	attack_reach_offset = calculate_attack_reach_offset()
 	choose_new_patrol_direction()
+
+func build_figure() -> void:
+	if guard_kind.is_empty():
+		guard_kind = "fast" if speed >= 200.0 else "melee"
+	figure = PaperFigure.new()
+	figure.look = CharacterData.GUARD_LOOKS.get(guard_kind, CharacterData.GUARD_LOOKS["melee"]) as Dictionary
+	figure.seed_id = absi(str(name).hash()) % 991
+	add_child(figure)
+	move_child(figure, color_rect.get_index() + 1)
+
+func set_tint(color: Color, amount: float) -> void:
+	if figure != null:
+		figure.set_flash(color, amount)
+
+func calculate_attack_reach_offset() -> float:
+	var shape_node: CollisionShape2D = hitbox.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	var hitbox_half: float = 21.0
+	if shape_node != null and shape_node.shape is RectangleShape2D:
+		hitbox_half = (shape_node.shape as RectangleShape2D).size.x * 0.5
+	return ATTACK_RANGE + 2.0 - hitbox_half - PLAYER_HURTBOX_HALF
 
 func ensure_awareness_visuals() -> void:
 	# Some older enemy scenes do not contain these presentation nodes. Creating
@@ -85,6 +118,7 @@ func ensure_awareness_visuals() -> void:
 		awareness_label.add_theme_font_size_override("font_size", 18)
 		awareness_label.add_theme_color_override("font_color", Color(1.0, 0.82, 0.28))
 		add_child(awareness_label)
+	awareness_label.pivot_offset = awareness_label.size * 0.5
 
 	if vision_pivot == null:
 		vision_pivot = Node2D.new()
@@ -125,6 +159,8 @@ func _physics_process(delta: float) -> void:
 
 	update_awareness(player, delta)
 	update_vision_display(player)
+	figure.moving_ratio = clampf(velocity.length() / maxf(1.0, speed), 0.0, 1.0)
+	figure.face_toward(facing_direction)
 
 	if is_attacking:
 		velocity = Vector2.ZERO
@@ -182,6 +218,8 @@ func update_awareness(player: CharacterBody2D, delta: float) -> void:
 					choose_new_patrol_direction()
 
 func can_see_player(player: CharacterBody2D) -> bool:
+	if Global.in_arrival_grace():
+		return false
 	var to_player: Vector2 = player.global_position - global_position
 	var distance: float = to_player.length()
 	if distance > detection_range or distance <= 0.01:
@@ -310,7 +348,7 @@ func become_alerted(report_detection: bool) -> void:
 		if level.has_method("register_detection"):
 			level.call("register_detection")
 		else:
-			Global.exposure += 1
+			Global.register_run_detection()
 		get_tree().call_group("enemies", "receive_alert", last_known_position)
 
 func receive_alert(alert_position: Vector2) -> void:
@@ -370,6 +408,23 @@ func update_vision_display(player: CharacterBody2D) -> void:
 		vision_cone.color = Color(0.95, 0.7, 0.12, 0.2)
 	else:
 		vision_cone.color = Color(0.75, 0.62, 0.25, 0.13)
+	update_awareness_label()
+
+# The "?" grows and reddens as suspicion builds, so the player can read how
+# close a guard is to raising the alarm instead of guessing.
+func update_awareness_label() -> void:
+	if not awareness_label.visible:
+		return
+	match awareness:
+		Awareness.SUSPICIOUS:
+			awareness_label.modulate = Color.WHITE.lerp(Color(1.0, 0.3, 0.25), suspicion)
+			awareness_label.scale = Vector2.ONE * lerpf(0.8, 1.45, suspicion)
+		Awareness.ALERT:
+			awareness_label.modulate = Color(1.0, 0.3, 0.25)
+			awareness_label.scale = Vector2.ONE * 1.45
+		_:
+			awareness_label.modulate = Color(1.0, 0.75, 0.55)
+			awareness_label.scale = Vector2.ONE
 
 func show_awareness(symbol: String) -> void:
 	awareness_label.text = symbol
@@ -379,10 +434,14 @@ func hide_awareness() -> void:
 	awareness_label.visible = false
 
 func shout_dialogue(text: String) -> void:
+	# Only the most recent bark may hide the label; older timers must not cut
+	# a newer line short.
+	bark_token += 1
+	var token: int = bark_token
 	bark_label.text = text
 	bark_label.visible = true
 	await get_tree().create_timer(1.4).timeout
-	if is_instance_valid(bark_label):
+	if is_instance_valid(bark_label) and token == bark_token:
 		bark_label.visible = false
 		bark_label.text = ""
 
@@ -390,10 +449,27 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "AttackArea":
 		take_damage(1)
 
-func take_damage(amount: int) -> void:
+# from_player is false for traps and other hazards: the guard is hurt and
+# searches around himself, but nobody has been seen and no alarm is raised.
+func take_damage(amount: int, from_player: bool = true) -> void:
 	if is_dead:
 		return
 	current_health -= amount
+	killed_by_player = from_player
+
+	if not from_player:
+		last_known_position = global_position
+		if awareness != Awareness.ALERT:
+			awareness = Awareness.SEARCHING
+			search_timer = SEARCH_DURATION
+			show_awareness("?")
+			shout_dialogue("Merde!")
+		set_tint(Color(1.0, 0.4, 0.3), 0.7)
+		await get_tree().create_timer(0.1).timeout
+		set_tint(Color.WHITE, 0.0)
+		if current_health <= 0:
+			die()
+		return
 
 	var player: CharacterBody2D = get_player()
 	if player != null:
@@ -406,9 +482,9 @@ func take_damage(amount: int) -> void:
 		var knockback_direction: Vector2 = (global_position - player.global_position).normalized()
 		knockback_velocity = knockback_direction * 1000.0
 
-	color_rect.color = FLASH_COLOR
+	set_tint(FLASH_COLOR, 0.9)
 	await get_tree().create_timer(0.08).timeout
-	color_rect.color = default_color
+	set_tint(FLASH_COLOR, 0.0)
 
 	if current_health <= 0:
 		die()
@@ -418,13 +494,17 @@ func die() -> void:
 		return
 	is_dead = true
 	var level: Node = get_parent()
-	if persistent_guard and level.has_method("register_guard_defeat"):
+	# A guard who dies on his own trap is not Étienne's violence.
+	if not killed_by_player:
+		pass
+	elif persistent_guard and level.has_method("register_guard_defeat"):
 		level.call("register_guard_defeat", str(name))
 	else:
 		Global.record_guard_defeat()
 	if level.has_method("add_score"):
 		level.call("add_score", 1)
 	color_rect.visible = false
+	figure.visible = false
 	vision_cone.visible = false
 	hurtbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
@@ -439,12 +519,13 @@ func start_attack_routine(attack_direction: Vector2) -> void:
 	is_attacking = true
 	attack_cooldown_timer = ATTACK_COOLDOWN
 	shout_dialogue("À mort!")
-	color_rect.color = Color.YELLOW
+	# Wind-up tell: the guard flares yellow before the sabre comes down.
+	set_tint(Color(1.0, 0.85, 0.2), 0.55)
 	await get_tree().create_timer(0.4).timeout
 	if is_dead:
 		return
-	color_rect.color = default_color
-	hitbox.position = attack_direction * 25.0
+	set_tint(Color.WHITE, 0.0)
+	hitbox.position = attack_direction * attack_reach_offset
 	hitbox.rotation = attack_direction.angle()
 	hitbox.visible = true
 	hitbox.monitoring = true

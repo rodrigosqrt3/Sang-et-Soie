@@ -45,6 +45,18 @@ var active_run: bool = false
 var run_health: int = 3
 var run_focus: float = 100.0
 var run_distraction_charges: int = 3
+# Being spotted costs exposure once per excursion, however many guards see it.
+var run_detected: bool = false
+# Guards cannot build suspicion for a moment after Étienne enters a room, so
+# nobody is caught in the doorway before they can even look around.
+var arrival_grace_until_msec: int = 0
+const ARRIVAL_GRACE_MSEC: int = 1500
+
+func start_arrival_grace() -> void:
+	arrival_grace_until_msec = Time.get_ticks_msec() + ARRIVAL_GRACE_MSEC
+
+func in_arrival_grace() -> bool:
+	return Time.get_ticks_msec() < arrival_grace_until_msec
 
 const PALAIS_SECTOR_NEIGHBORS: Dictionary = {
 	"garden": ["west", "east"],
@@ -74,12 +86,29 @@ const QUEST_CHAPTER_TWO_COMPLETE: String = "chapter_two_complete"
 
 var current_quest: String = QUEST_TALK_TO_SMUGGLER
 
+# Story state as data. New narrative content uses flags and counters instead of
+# a dedicated variable per consequence, so adding a consequence costs nothing.
+var flags: Dictionary = {}
+var counters: Dictionary = {}
+
+# The calendar. Night 0 is 29 Brumaire, Year VI (19 November 1797); the Table
+# is delivered on night 21, 20 Frimaire (10 December 1797).
+const FINAL_NIGHT: int = 21
+var night: int = 0
+var last_failure_district: String = ""
+
 # OS-independent safe path for save data
 const SAVE_PATH = "user://save_game.cfg"
 const DEVELOPMENT_MODE: bool = false
-const SAVE_VERSION: int = 2
+const SAVE_VERSION: int = 3
+
+# Automated tests point this at a scratch file so they never touch a real save.
+var save_path: String = SAVE_PATH
 
 func _ready() -> void:
+	var override_path: String = OS.get_environment("SANGETSOIE_SAVE")
+	if not override_path.is_empty():
+		save_path = override_path
 	if DEVELOPMENT_MODE:
 		reset_progress()
 		var old_save_path: String = ProjectSettings.globalize_path(SAVE_PATH)
@@ -118,23 +147,89 @@ func reset_progress() -> void:
 	weapon_scale = Vector2(1.0, 1.0)
 	focus_drain_rate = 60.0
 	current_quest = QUEST_TALK_TO_SMUGGLER
+	flags.clear()
+	counters.clear()
+	night = 0
+	last_failure_district = ""
+
+# =========================================================
+# STORY STATE
+# =========================================================
+func set_flag(flag_id: String, value: bool = true) -> void:
+	if value:
+		flags[flag_id] = true
+	else:
+		flags.erase(flag_id)
+
+func has_flag(flag_id: String) -> bool:
+	return bool(flags.get(flag_id, false))
+
+func get_counter(counter_id: String) -> int:
+	return int(counters.get(counter_id, 0))
+
+func add_counter(counter_id: String, amount: int = 1) -> void:
+	counters[counter_id] = get_counter(counter_id) + amount
+
+# Resolves a name used by dialogue conditions. Legacy consequence variables
+# (violence, exposure, smuggler_trust...) are read straight from this script,
+# so old saves and new data speak the same language.
+func get_story_value(value_name: String) -> int:
+	if value_name == "night":
+		return night
+	if value_name in self and typeof(get(value_name)) in [TYPE_INT, TYPE_FLOAT, TYPE_BOOL]:
+		return int(get(value_name))
+	if counters.has(value_name):
+		return get_counter(value_name)
+	return 1 if has_flag(value_name) else 0
+
+func add_story_value(value_name: String, amount: int) -> void:
+	if value_name in self and typeof(get(value_name)) == TYPE_INT:
+		set(value_name, int(get(value_name)) + amount)
+	else:
+		add_counter(value_name, amount)
+
+# =========================================================
+# CALENDAR
+# =========================================================
+# Every excursion costs a night, whether it ends in success or on the floor.
+func advance_night() -> void:
+	night = mini(night + 1, FINAL_NIGHT)
+
+func get_nights_remaining() -> int:
+	return maxi(0, FINAL_NIGHT - night)
+
+func get_republican_date(for_night: int = -1) -> String:
+	var n: int = night if for_night < 0 else for_night
+	var day: int = 29 + n
+	if day <= 30:
+		return str(day) + " Brumaire, Year VI"
+	return str(day - 30) + " Frimaire, Year VI"
+
+func get_gregorian_date(for_night: int = -1) -> String:
+	var n: int = night if for_night < 0 else for_night
+	var day: int = 19 + n
+	if day <= 30:
+		return str(day) + " November 1797"
+	return str(day - 30) + " December 1797"
 
 func get_current_objective() -> String:
 	match current_quest:
 		QUEST_TALK_TO_SMUGGLER:
-			return "Talk to the Belgian Smuggler about Théodore"
+			if not has_flag("prologue_done"):
+				return "The Bal des Victimes, 29 Brumaire"
+			return "Hear what the Belgian knows about Jacquet's page"
 		QUEST_ENTER_STREETS:
-			return "Recover the courier's list fragment in the Palais-Royal"
+			return "Recover Jacquet's page, sealed in red wax, in the Palais-Égalité"
 		QUEST_REPORT_FRAGMENT:
-			return "Decide how much to reveal to the Smuggler"
+			return "Show the Belgian what you found, or only part of it"
 		QUEST_TALK_TO_MARGUERITE:
 			return "Ask Marguerite about the passage beneath the Bal"
 		QUEST_GRAB_KEY:
-			return "Recover Madame's hidden sewer key"
+			return "Take Madame's key from beneath the loose boards"
 		QUEST_ENTER_SEWERS:
-			return "Enter the sewers and find the source of the list"
+			return "Descend through the grate into the quarries"
 		QUEST_CHAPTER_ONE_COMPLETE:
-			return "Leave for the Faubourg Saint-Antoine and follow Théodore's cipher"
+			return "Go east to the Faubourg Saint-Antoine and follow the printer's trail"
 		QUEST_MEET_LUCILE:
 			return "Find Lucile among the cabinetmakers of Saint-Antoine"
 		QUEST_SEARCH_WORKSHOP:
@@ -192,12 +287,24 @@ func begin_active_run() -> void:
 	run_health = 3
 	run_focus = 100.0
 	run_distraction_charges = 3
+	run_detected = false
 
 func reset_active_run_state() -> void:
 	active_run = false
 	run_health = 3
 	run_focus = 100.0
 	run_distraction_charges = 3
+	run_detected = false
+
+# Generic detection for districts without their own alert network.
+# Returns true only for the first detection of the excursion.
+func register_run_detection() -> bool:
+	if run_detected:
+		return false
+	run_detected = true
+	exposure += 1
+	save_game()
+	return true
 
 func capture_player_run_state(player: Node) -> void:
 	if not active_run or player == null or bool(player.get("is_safe_mode")):
@@ -291,9 +398,38 @@ func register_palais_detection(source_sector: String = "garden") -> bool:
 	save_game()
 	return true
 
+func get_current_district() -> String:
+	return district_from_path(get_tree().current_scene.scene_file_path if get_tree().current_scene != null else "")
+
+# The district a node lives in, read from the level that owns it. Safe to call
+# from _ready, when current_scene may not point at the new level yet.
+func get_district_of(node: Node) -> String:
+	var level: Node = node.owner if node.owner != null else node
+	return district_from_path(level.scene_file_path)
+
+func district_from_path(path: String) -> String:
+	for district in ["palais_royal", "saint_antoine", "underground", "hub"]:
+		if path.contains("/" + district + "/"):
+			return district
+	return ""
+
+# Successful return to the Bal. Failures go through record_failed_run instead.
+func complete_excursion() -> void:
+	runs_completed += 1
+	advance_night()
+	reset_active_run_state()
+	save_game()
+
 func record_failed_run() -> void:
 	failed_runs += 1
 	exposure += 1
+	last_failure_district = get_current_district()
+	# Short flags for dialogue conditions: last_failure_palais, _saint_antoine...
+	for district in ["palais", "saint_antoine", "underground"]:
+		set_flag("last_failure_" + district, false)
+	set_flag("last_failure_" + last_failure_district.trim_suffix("_royal"), true)
+	set_flag("pending_recovery_scene")
+	advance_night()
 	if current_quest == QUEST_ENTER_STREETS:
 		has_list_fragment = false
 		fragment_recovered_without_killing = false
@@ -423,21 +559,27 @@ func save_game() -> void:
 	config.set_value("run", "health", run_health)
 	config.set_value("run", "focus", run_focus)
 	config.set_value("run", "distraction_charges", run_distraction_charges)
-	
+	config.set_value("run", "detected", run_detected)
+
+	config.set_value("story", "flags", flags)
+	config.set_value("story", "counters", counters)
+	config.set_value("story", "night", night)
+	config.set_value("story", "last_failure_district", last_failure_district)
+
 	config.set_value("upgrades", "dash_cooldown", dash_cooldown)
 	config.set_value("upgrades", "weapon_scale", weapon_scale)
 	config.set_value("upgrades", "focus_drain_rate", focus_drain_rate) # NEW: Save focus upgrade
 	
 	# Write the file to disk
-	var err: Error = config.save(SAVE_PATH)
+	var err: Error = config.save(save_path)
 	if err == OK:
-		print("Game saved successfully to: ", SAVE_PATH)
+		print("Game saved successfully to: ", save_path)
 	else:
 		print("Error saving game: ", err)
 
 func load_game() -> void:
 	var config: ConfigFile = ConfigFile.new()
-	var err: Error = config.load(SAVE_PATH)
+	var err: Error = config.load(save_path)
 	
 	# If the save file exists, read and restore all variables on startup
 	if err == OK:
@@ -472,7 +614,19 @@ func load_game() -> void:
 		run_health = int(config.get_value("run", "health", 3))
 		run_focus = float(config.get_value("run", "focus", 100.0))
 		run_distraction_charges = int(config.get_value("run", "distraction_charges", 3))
+		run_detected = bool(config.get_value("run", "detected", false))
 		
+		flags = config.get_value("story", "flags", {}) as Dictionary
+		counters = config.get_value("story", "counters", {}) as Dictionary
+		night = int(config.get_value("story", "night", 0))
+		last_failure_district = str(config.get_value("story", "last_failure_district", ""))
+
+		# Saves from before version 3 already started the story: never replay
+		# the prologue over a campaign that is under way.
+		var loaded_version: int = int(config.get_value("meta", "save_version", 1))
+		if loaded_version < 3 and current_quest != QUEST_TALK_TO_SMUGGLER:
+			set_flag("prologue_done")
+
 		dash_cooldown = config.get_value("upgrades", "dash_cooldown", 1.0)
 		weapon_scale = config.get_value("upgrades", "weapon_scale", Vector2(1.0, 1.0))
 		focus_drain_rate = config.get_value("upgrades", "focus_drain_rate", 60.0) # NEW: Load focus upgrade

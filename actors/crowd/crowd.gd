@@ -5,6 +5,8 @@ extends Node2D
 @export var acceleration: float = 42.0
 @export var pause_min: float = 0.7
 @export var pause_max: float = 2.4
+# "palais" (silk) or "workers" (Saint-Antoine). Empty: chosen by district.
+@export var crowd_style: String = ""
 
 const MEMBER_ROAM_X: float = 22.0
 const MEMBER_ROAM_Y: float = 13.0
@@ -28,6 +30,7 @@ var member_targets: Array[Vector2] = []
 var member_velocities: Array[Vector2] = []
 var member_speeds: Array[float] = []
 var member_wait_timers: Array[float] = []
+var member_figures: Array[PaperFigure] = []
 
 @onready var figures: Node2D = $Figures
 @onready var blend_area: Area2D = $BlendArea
@@ -80,14 +83,29 @@ func force_player_out_of_blend() -> void:
 	var overlapping_bodies: Array[Node2D] = blend_area.get_overlapping_bodies()
 	for body in overlapping_bodies:
 		if body.is_in_group("player") and body.has_method("exit_social_blend"):
-			body.call("exit_social_blend")
+			body.call("exit_social_blend", self)
 
 func register_members() -> void:
+	if crowd_style.is_empty():
+		crowd_style = "workers" if Global.get_district_of(self) == "saint_antoine" else "palais"
 	var figure_nodes: Array[Node] = figures.get_children()
+	var index: int = 0
 	for figure_node in figure_nodes:
 		var member: Node2D = figure_node as Node2D
 		if member == null:
 			continue
+		# Each placeholder rectangle becomes a paper guest.
+		var placeholder: CanvasItem = member.get_node_or_null("Body") as CanvasItem
+		if placeholder != null:
+			placeholder.visible = false
+		var paper: PaperFigure = PaperFigure.new()
+		var seed_value: int = absi(int(global_position.x * 7.0 + global_position.y * 13.0)) + index * 31
+		paper.look = CharacterData.get_crowd_look(crowd_style, seed_value)
+		paper.seed_id = seed_value % 997
+		paper.scale = Vector2.ONE * 0.9
+		member.add_child(paper)
+		member_figures.append(paper)
+		index += 1
 		members.append(member)
 		member_home_positions.append(member.position)
 		member_targets.append(member.position)
@@ -142,7 +160,11 @@ func update_member_movement(delta: float) -> void:
 			update_active_member(member_index, delta)
 
 		member.position += member_velocities[member_index] * delta
-		member.rotation = clampf(member_velocities[member_index].x / 500.0, -0.045, 0.045)
+		var moving: Vector2 = member_velocities[member_index] + group_velocity
+		var paper: PaperFigure = member_figures[member_index]
+		paper.moving_ratio = clampf(moving.length() / 40.0, 0.0, 0.6)
+		if absf(moving.x) > 3.0:
+			paper.facing_left = moving.x < 0.0
 
 func update_active_member(member_index: int, delta: float) -> void:
 	var member: Node2D = members[member_index]
@@ -180,8 +202,8 @@ func calculate_separation(member_index: int) -> Vector2:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player") and body.has_method("enter_social_blend"):
-		body.call("enter_social_blend")
+		body.call("enter_social_blend", self)
 
 func _on_body_exited(body: Node2D) -> void:
 	if body.is_in_group("player") and body.has_method("exit_social_blend"):
-		body.call("exit_social_blend")
+		body.call("exit_social_blend", self)

@@ -9,7 +9,7 @@ const GLOW_SPEED: float = 12.0
 
 func _ready() -> void:
 	prompt_label.visible = false
-	prompt_label.text = "[E] Pick up Key"
+	prompt_label.text = "[E] Lift the loose boards"
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
@@ -42,13 +42,8 @@ func _on_body_exited(body: Node2D) -> void:
 func collect_key() -> void:
 	Global.current_quest = Global.QUEST_ENTER_SEWERS
 	Global.save_game()
-	var players: Array[Node] = get_tree().get_nodes_in_group("player")
-	if not players.is_empty():
-		var player: CharacterBody2D = players[0] as CharacterBody2D
-		if player != null:
-			var player_visual: ColorRect = player.get_node_or_null("ColorRect") as ColorRect
-			if player_visual != null:
-				player_visual.color = Color(0.8, 0.6, 0.0)
-				await get_tree().create_timer(0.15).timeout
-				player_visual.color = Color(0.14, 0.45, 0.23)
+	for player in get_tree().get_nodes_in_group("player"):
+		if player.has_method("flash_gold"):
+			player.call("flash_gold")
+	Dialogue.bark("etienne", "Madame's key, under Madame's floor. Forgive me, Marguerite.", 4.0)
 	queue_free()

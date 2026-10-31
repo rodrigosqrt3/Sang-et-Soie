@@ -1,67 +1,77 @@
 extends Node2D
 
-# References to UI elements
-@onready var objective_label: Label = $UI/ObjectiveLabel
-@onready var dialogue_panel: ColorRect = $UI/DialoguePanel
-@onready var speaker_name_label: Label = $UI/DialoguePanel/SpeakerName
-@onready var dialogue_text_label: Label = $UI/DialoguePanel/DialogueText
-@onready var choice_box: VBoxContainer = $UI/DialoguePanel/ChoiceBox
-@onready var button_a: Button = $UI/DialoguePanel/ChoiceBox/ButtonA
-@onready var button_b: Button = $UI/DialoguePanel/ChoiceBox/ButtonB
+# The hub. Registers the story actions used by the Bal's conversations and
+# decides which scene plays when Étienne walks (or is carried) back in.
+
+const JACQUET_ENTRY: Vector2 = Vector2(400, 40)
+const JACQUET_FALL: Vector2 = Vector2(400, 178)
+const STAIRS_TOP: Vector2 = Vector2(400, 30)
+
+@onready var jacquet: StoryNPC = $Jacquet
+@onready var gravelot: StoryNPC = $Gravelot
 
 func _ready() -> void:
-	# Hide the dialogue panel at start
-	dialogue_panel.visible = false
-	choice_box.visible = false
-	update_objective_ui()
+	Dialogue.register_action("open_shop", func(_args: Array) -> void: SmugglerShop.open())
+	Dialogue.register_action("buy", func(args: Array) -> void: SmugglerShop.buy(str(args[0])))
+	Dialogue.register_action("jacquet_enters", _on_jacquet_enters)
+	Dialogue.register_action("jacquet_dies", _on_jacquet_dies)
+	Dialogue.register_action("gravelot_leaves", _on_gravelot_leaves)
+	if not Global.has_flag("prologue_done"):
+		# Jacquet only appears when he falls down the stairs.
+		jacquet.visible = false
+	lock_camera_to_room()
+	add_child(ScreenGrade.new())
+	play_arrival_scene.call_deferred()
 
-	if Global.current_quest == Global.QUEST_CHAPTER_ONE_COMPLETE and Global.theodore_knows_about_lists:
-		show_dialogue(
-			"Étienne de Vauclaire",
-			"The ledger is full of a printer's corrections. In the margins, I found the cipher Théodore and I invented as boys. He was never hiding from these lists. He was hunting them."
-		)
+# The Bal fits the screen exactly: the camera never drifts off the room.
+func lock_camera_to_room() -> void:
+	for player in get_tree().get_nodes_in_group("player"):
+		var camera: Camera2D = player.get_node_or_null("Camera2D") as Camera2D
+		if camera != null:
+			camera.limit_left = 0
+			camera.limit_top = 0
+			camera.limit_right = 800
+			camera.limit_bottom = 600
+			camera.position_smoothing_enabled = false
+			camera.reset_smoothing()
+
+func play_arrival_scene() -> void:
+	# Let the fade-in finish before anyone speaks.
+	await get_tree().create_timer(0.45).timeout
+	if Dialogue.is_active():
+		return
+	if not Global.has_flag("prologue_done"):
+		Dialogue.start("prologue")
+	elif Global.has_flag("pending_recovery_scene"):
+		Dialogue.start("recovery")
+	elif Global.current_quest == Global.QUEST_CHAPTER_ONE_COMPLETE and not Global.has_flag("seen:chapter_one_close"):
+		Dialogue.start("chapter_one_close")
 	elif Global.current_quest == Global.QUEST_CHAPTER_TWO_COMPLETE:
-		if Global.saint_antoine_raid_choice == "protect_workers":
-			show_dialogue(
-				"Marguerite Colbert",
-				"News travels even through locked windows. The printers escaped with most of the names. Théodore did not. Madame would call that a victory and refuse to explain whom it belonged to."
-			)
-		else:
-			show_dialogue(
-				"Étienne de Vauclaire",
-				"Théodore left a trail toward the river and I chose it over the people behind me. I know where he went. I do not yet know what the knowledge cost."
-			)
+		var closing: String = "chapter_two_close_protect" if Global.saint_antoine_raid_choice == "protect_workers" else "chapter_two_close_pursue"
+		if not Global.has_flag("seen:" + closing):
+			Dialogue.start(closing)
 
-func _process(_delta: float) -> void:
-	update_objective_ui()
+# Tweens here run while the tree is paused by the conversation.
+func story_tween() -> Tween:
+	return create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 
-func update_objective_ui() -> void:
-	objective_label.text = "Objective: " + Global.get_current_objective()
+func _on_jacquet_enters(_args: Array) -> void:
+	jacquet.visible = true
+	jacquet.position = JACQUET_ENTRY
+	jacquet.figure.lean = 0.25
+	jacquet.figure.moving_ratio = 1.0
+	var tween: Tween = story_tween()
+	tween.tween_property(jacquet, "position", JACQUET_FALL, 0.9).set_trans(Tween.TRANS_SINE)
 
-# Public function to display the professional dialogue box
-func show_dialogue(speaker: String, text: String) -> void:
-	dialogue_panel.visible = true
-	choice_box.visible = false # Hide choices by default
-	speaker_name_label.text = speaker
-	dialogue_text_label.text = text
+func _on_jacquet_dies(_args: Array) -> void:
+	jacquet.figure.moving_ratio = 0.0
+	var tween: Tween = story_tween()
+	tween.tween_property(jacquet.figure, "lean", 1.45, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-# Public function to hide the dialogue box
-func hide_dialogue() -> void:
-	dialogue_panel.visible = false
-	choice_box.visible = false
-
-# Public function to display choice options for the player
-func show_choices(option_a_text: String, option_b_text: String, caller_node: Node) -> void:
-	choice_box.visible = true
-	button_a.text = option_a_text
-	button_b.text = option_b_text
-	
-	# Disconnect any old connections to prevent double clicks
-	if button_a.pressed.is_connected(caller_node._on_button_a_pressed):
-		button_a.pressed.disconnect(caller_node._on_button_a_pressed)
-	if button_b.pressed.is_connected(caller_node._on_button_b_pressed):
-		button_b.pressed.disconnect(caller_node._on_button_b_pressed)
-		
-	# Connect the buttons to the NPC script that called the dialogue
-	button_a.pressed.connect(caller_node._on_button_a_pressed)
-	button_b.pressed.connect(caller_node._on_button_b_pressed)
+func _on_gravelot_leaves(_args: Array) -> void:
+	gravelot.figure.moving_ratio = 0.5
+	gravelot.figure.facing_left = gravelot.position.x > STAIRS_TOP.x
+	var tween: Tween = story_tween()
+	tween.tween_property(gravelot, "position", Vector2(STAIRS_TOP.x, 120), 1.2)
+	tween.tween_property(gravelot, "position", STAIRS_TOP, 0.8)
+	tween.parallel().tween_property(gravelot, "modulate:a", 0.0, 0.8)

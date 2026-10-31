@@ -18,11 +18,12 @@ const DOSSIER_SCENE: PackedScene = preload("res://levels/underground/dossier.tsc
 var knockback_velocity: Vector2 = Vector2.ZERO
 const KNOCKBACK_DECAY: float = 15.0
 
-# Colors for hit flash (using deep purple as default)
-const PURPLE_COLOR = Color(0.55, 0.27, 0.68)
-const CRIMSON_COLOR = Color(0.62, 0.12, 0.18)
-const PALE_COLOR = Color(0.78, 0.72, 0.58)
+# Mâchefer's rage, phase by phase: a tint laid over the paper figure.
+const PHASE_TINTS: Array[Color] = [Color(0, 0, 0), Color(0.85, 0.15, 0.12), Color(1.0, 0.55, 0.2)]
+const PHASE_TINT_AMOUNT: Array[float] = [0.0, 0.25, 0.4]
 const FLASH_COLOR = Color.WHITE
+
+var figure: PaperFigure
 
 # References to nodes
 @onready var hurtbox: Area2D = $Hurtbox
@@ -35,14 +36,23 @@ func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 1
 	current_health = MAX_HEALTH
-	color_rect.color = PURPLE_COLOR
+	color_rect.visible = false
+	figure = PaperFigure.new()
+	figure.look = CharacterData.get_look("machefer")
+	figure.seed_id = 1793
+	figure.scale = Vector2(1.35, 1.35)
+	add_child(figure)
+	move_child(figure, color_rect.get_index() + 1)
 	bark_label.visible = false
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
-	
+
 	# Connect and start the fast shooting timer
 	shoot_timer.timeout.connect(_on_shoot_timer_timeout)
 	shoot_timer.start(1.7)
 	announce("That name belongs to the dead.")
+
+func restore_phase_tint() -> void:
+	figure.set_flash(PHASE_TINTS[phase - 1], PHASE_TINT_AMOUNT[phase - 1])
 
 func _physics_process(delta: float) -> void:
 	if knockback_velocity.length() > 10.0:
@@ -56,7 +66,9 @@ func _physics_process(delta: float) -> void:
 		var player: CharacterBody2D = players[0] as CharacterBody2D
 		var distance: float = global_position.distance_to(player.global_position)
 		var direction: Vector2 = global_position.direction_to(player.global_position)
-		
+		figure.face_toward(direction)
+		figure.moving_ratio = 0.6 if distance > stop_distance else 0.0
+
 		if distance > stop_distance:
 			velocity = direction * move_speed
 		else:
@@ -109,14 +121,13 @@ func enter_phase(new_phase: int) -> void:
 		move_speed = 82.0
 		stop_distance = 240.0
 		shoot_timer.start(1.05)
-		color_rect.color = CRIMSON_COLOR
-		announce("I have seen three Vauclaires buried. Shall I count you twice?")
+		announce("He was lighter than he looked, your father. So are you.")
 	elif phase == 3:
 		move_speed = 115.0
 		stop_distance = 170.0
 		shoot_timer.start(0.72)
-		color_rect.color = PALE_COLOR
 		announce("Come closer. Let me see which brother survived.")
+	restore_phase_tint()
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "AttackArea":
@@ -145,15 +156,10 @@ func take_damage(amount: int) -> void:
 		var knockback_direction: Vector2 = (global_position - player.global_position).normalized()
 		knockback_velocity = knockback_direction * 650.0
 		
-	color_rect.color = FLASH_COLOR
+	figure.set_flash(FLASH_COLOR, 0.9)
 	await get_tree().create_timer(0.08).timeout
-	if phase == 1:
-		color_rect.color = PURPLE_COLOR
-	elif phase == 2:
-		color_rect.color = CRIMSON_COLOR
-	else:
-		color_rect.color = PALE_COLOR
-	
+	restore_phase_tint()
+
 	if current_health <= 0:
 		die()
 
@@ -176,6 +182,7 @@ func die() -> void:
 		dossier_node.queue_free()
 	
 	color_rect.visible = false
+	figure.visible = false
 	hurtbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
 	$CollisionShape2D.set_deferred("disabled", true)

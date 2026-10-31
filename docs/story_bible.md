@@ -571,6 +571,12 @@ Elegant melancholy, dry humour and sudden violence. Never melodrama: characters 
 
 ---
 
+## 13.3 Decisions taken during implementation
+- **Gravelot leaves in the prologue** instead of after the Palais: he climbs the stairs once Jacquet dies ("A pity. Such a crowded evening.").
+- **The blue-lips ritual is adopted:** at the Bal the guests, Étienne included, paint their lips the colour of the dead. Outside the Bal his lips are normal.
+- **Saint-Antoine disguise:** for now Étienne changes into a worker's smock automatically when he enters the Faubourg. Buying or stealing the smock as a player action is still to do.
+- **Death in the quarries** never needs a supernatural explanation: the recovery scene with Arvène plays at the Bal after every failure.
+
 ## 14. From this document to the code
 
 ### 14.1 What exists and where it fits
