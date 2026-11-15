@@ -1,17 +1,20 @@
 # Le Sang et la Soie
 
-*Blood and Silk.* A stealth game set in Paris, in the winter of 1797.
+A stealth game set in Paris in the winter of 1797, a few years after the Terror.
 
-The Terror is over. In a cellar under the city, the children of the guillotined hold the Bal des Victimes: they dance with a red ribbon tied round the throat and their lips painted the colour of the drowned. Étienne de Vauclaire is one of them, an *Incroyable* in an emerald coat. Twenty-one nights before the 20th of Frimaire, he goes out into a city that has stopped believing in anything to find a page that should not exist.
+After the guillotine stopped, the families of the executed began holding the Bal des Victimes, where you could only get in if someone close to you had died on the scaffold. The guests wore a red ribbon around the neck and danced. Étienne de Vauclaire is one of them, an *Incroyable* in an emerald coat, and he has twenty-one nights to find Jacquet's page before the 20th of Frimaire.
 
 ![The Bal des Victimes](screenshots/pixel_bal.png)
 
-## What you do
+## The game
 
-- **Slip through Paris:** the arcades of the Palais-Égalité, the quarries under the Left Bank, the workshops of the Faubourg Saint-Antoine. Guards see, hear and follow you; crowds, shadows and darkness hide you.
-- **Choose how:** a lead-tipped cane and a dance step for a dodge, or never being seen at all. Every guard you hurt is remembered.
-- **Work things out:** put out a street lamp and wear the dark (someone will come to see who took the light), move a barrel onto a counterweight, read what someone scratched into a pedestal and turn a cipher disc until it means something.
-- **Talk:** every conversation pulls Étienne toward silk or toward blood, and the people of the Bal remember which.
+You go out from the Bal into the city at night: the arcades of the Palais-Égalité, the old quarries under the Left Bank, the workshops of the Faubourg Saint-Antoine. Guards can see and hear you, and the crowd, the shadows and the dark are where you hide.
+
+You carry a cane with a lead tip and you can fight, but the game remembers every guard you hurt. You can also get through without anyone seeing you.
+
+Some things have to be worked out rather than fought. Street lamps can be put out to make a dark place to hide, though a guard will usually come to check why the light went out. There is a strongroom gate held shut by a counterweight, and a message scratched into a pedestal that only makes sense once you find a way to read it.
+
+In conversations, Étienne leans toward silk or toward blood, and the people at the Bal notice which.
 
 ![The Palais-Égalité garden](screenshots/pixel_palais_garden.png)
 
@@ -21,38 +24,38 @@ The Terror is over. In a cellar under the city, the children of the guillotined 
 
 ## How to play
 
-1. Open **[Releases](../../releases)** and download the latest `.zip`.
-2. Unzip it anywhere and run `SangEtSoie.exe`.
-3. Windows may warn that the program is from an unknown publisher (it is not signed). Choose *More info*, then *Run anyway*.
+1. Go to [Releases](../../releases) and download the latest `.zip`.
+2. Unzip it and run `SangEtSoie.exe`.
+3. Windows will probably warn you that the publisher is unknown, because the game is not signed. Click *More info* and then *Run anyway*.
 
-Windows 10 or 11, 64-bit. Your progress saves automatically.
+It runs on 64-bit Windows 10 and 11. The game saves on its own.
 
 ### Controls
 
-| | |
+| Key | Action |
 |---|---|
-| WASD | walk |
-| Shift (hold) | creep, silently |
-| Space | dash |
-| Left click | the cane |
-| Right click (hold) | Le Regard: time slows, hidden things show |
-| Q | throw a coin, to draw a guard away |
-| E | talk, use, read, put out a light |
+| WASD | Walk |
+| Shift (hold) | Creep quietly |
+| Space | Dash |
+| Left click | Swing the cane |
+| Right click (hold) | Le Regard: slows time and shows hidden marks |
+| Q | Throw a coin to distract a guard |
+| E | Talk, read, use things, put out lights |
 
 ## Status
 
-Early and in progress: the first two acts are playable. There is no sound yet. Feedback and bug reports are welcome in [Issues](../../issues).
+This is an early version. The first two acts can be played from start to finish, and there is no sound yet. If you find a bug, please open an [issue](../../issues).
 
 ## Credits
 
 Made with [Godot Engine](https://godotengine.org) (MIT licence).
 
-Typeface: IM Fell English by Igino Marini, used under the SIL Open Font License; see `FONT_LICENSE_OFL.txt`.
+Font: IM Fell English by Igino Marini, under the SIL Open Font License (see `FONT_LICENSE_OFL.txt`).
 
 ## Rights
 
 © 2026 rodrigosqrt3. All rights reserved.
 
-You may download and play the game for free. You may not redistribute it, sell it, modify it, or reuse its story, characters, writing or art, in whole or in part, without written permission.
+You can download the game and play it for free. You may not redistribute it, sell it, modify it, or reuse its story, characters, writing or art, in whole or in part, without written permission.
 
 The source code is not public.
